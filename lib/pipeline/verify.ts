@@ -4,12 +4,14 @@ import { VERIFY_SYSTEM, verifyUserPrompt } from "../prompts/verify";
 import type { Evidence, Guide } from "../schema";
 import { htmlToText, safeFetch } from "./safeFetch";
 
-const MAX_PAGE_CHARS = 60_000;
+const MAX_PAGE_CHARS = 40_000;
+const BATCH_CHARS = 150_000; // several sources per verifier call to save requests
 
 const VerifyOut = z.object({
   results: z.array(
     z.object({
-      id: z.string(),
+      claim_id: z.string(),
+      source: z.number(),
       verdict: z.enum(["supported", "partially_supported", "unsupported", "source_unreachable"]),
       note: z.string(),
     }),
@@ -41,11 +43,10 @@ function claimsOf(g: Guide): Claim[] {
   return out;
 }
 
-async function pageText(url: string, cache: Map<string, string>, onProgress?: ProgressFn): Promise<string> {
+async function pageText(url: string, onProgress?: ProgressFn): Promise<string> {
   const r = await safeFetch(url, { timeoutMs: 15_000, accept: "text/html,application/xhtml+xml,text/plain,*/*" });
   let text = r.ok ? (r.contentType?.includes("html") ? htmlToText(r.body) : r.body) : "";
-  // JS-rendered or bot-blocked pages: fall back to the provider's page reader if it has one
-  // (Anthropic web_fetch returns raw page text, not a model summary).
+  // JS-rendered or bot-blocked pages: fall back to the provider's page reader if it has one.
   if (text.length < 800) {
     onProgress?.(`verify: direct fetch thin (${text.length} chars) for ${url}`);
     try {
@@ -53,14 +54,12 @@ async function pageText(url: string, cache: Map<string, string>, onProgress?: Pr
       if (t && t.length > text.length) text = t;
     } catch {}
   }
-  const out = text.slice(0, MAX_PAGE_CHARS);
-  cache.set(normUrl(url), out);
-  return out;
+  return text.slice(0, MAX_PAGE_CHARS);
 }
 
 /**
- * Stage 4: independent verification. For each cited URL, re-read the page and
- * check every claim citing it. The verifier never sees the research notes.
+ * Stage 4: independent verification. Re-fetch every cited page and check each
+ * claim against it. The verifier never sees the research notes or reasoning.
  * Unsupported claims are downgraded to "inferred"; nothing is ever upgraded.
  */
 export async function verify(g: Guide, onProgress?: ProgressFn): Promise<Guide> {
@@ -84,48 +83,61 @@ export async function verify(g: Guide, onProgress?: ProgressFn): Promise<Guide> 
     }
   }
 
-  const verdicts = new Map<string, Verdict[]>(); // claim id -> verdicts across its URLs
-  const cache = new Map<string, string>();
-  const jobs = [...byUrl.values()];
-  onProgress?.(`verify: ${jobs.length} source page(s), ${claims.filter((c) => c.evidence.evidence_status === "sourced_from_docs").length} sourced claim(s)`);
+  const sourced = claims.filter((c) => c.evidence.evidence_status === "sourced_from_docs");
+  onProgress?.(`verify: ${byUrl.size} source page(s), ${sourced.length} sourced claim(s)`);
+
+  // Fetch pages (cheap, no LLM), then pack into batches.
+  const jobs = await Promise.all(
+    [...byUrl.values()].map(async (j, idx) => ({ ...j, n: idx + 1, text: await pageText(j.url, onProgress) })),
+  );
+  const verdicts = new Map<string, Verdict[]>();
+  const record = (v: Verdict) => {
+    if (!verdicts.has(v.claim_id)) verdicts.set(v.claim_id, []);
+    verdicts.get(v.claim_id)!.push(v);
+  };
+  for (const j of jobs.filter((j) => !j.text)) {
+    for (const c of j.claims) record({ claim_id: c.id, source: j.n, verdict: "source_unreachable", note: "Page could not be retrieved." });
+  }
+  const batches: (typeof jobs)[] = [];
+  let cur: typeof jobs = [];
+  let size = 0;
+  for (const j of jobs.filter((j) => j.text)) {
+    if (cur.length && size + j.text.length > BATCH_CHARS) {
+      batches.push(cur);
+      cur = [];
+      size = 0;
+    }
+    cur.push(j);
+    size += j.text.length;
+  }
+  if (cur.length) batches.push(cur);
 
   let next = 0;
   async function worker() {
-    while (next < jobs.length) {
-      const job = jobs[next++];
-      const text = await pageText(job.url, cache, onProgress);
-      let results: Verdict[];
-      if (!text) {
-        results = job.claims.map((c) => ({ id: c.id, verdict: "source_unreachable" as const, note: "Page could not be retrieved." }));
-      } else {
-        try {
-          const out = await llm().structured({
-            system: VERIFY_SYSTEM,
-            user: verifyUserPrompt(job.url, text, job.claims.map(({ id, statement }) => ({ id, statement }))),
-            schema: VerifyOut,
-            effort: "low",
-          });
-          results = out.results;
-        } catch (e) {
-          results = job.claims.map((c) => ({ id: c.id, verdict: "source_unreachable" as const, note: `Verifier error: ${String(e)}` }));
-        }
+    while (next < batches.length) {
+      const batch = batches[next++];
+      try {
+        const out = await llm().structured({
+          system: VERIFY_SYSTEM,
+          user: verifyUserPrompt(batch.map((j) => ({ n: j.n, url: j.url, text: j.text, claims: j.claims.map(({ id, statement }) => ({ id, statement })) }))),
+          schema: VerifyOut,
+          effort: "low",
+        });
+        out.results.forEach(record);
+      } catch (e) {
+        for (const j of batch) for (const c of j.claims) record({ claim_id: c.id, source: j.n, verdict: "source_unreachable", note: `Verifier error: ${String(e).slice(0, 200)}` });
       }
-      for (const r of results) {
-        if (!verdicts.has(r.id)) verdicts.set(r.id, []);
-        verdicts.get(r.id)!.push(r);
-      }
-      onProgress?.(`verify: checked ${job.url} (${results.filter((r) => r.verdict === "supported").length}/${results.length} supported)`);
+      onProgress?.(`verify: checked batch of ${batch.length} source(s)`);
     }
   }
-  await Promise.all(Array.from({ length: llm().verifyConcurrency }, worker));
+  await Promise.all(Array.from({ length: Math.min(llm().verifyConcurrency, batches.length || 1) }, worker));
 
-  for (const c of claims) {
-    if (c.evidence.evidence_status !== "sourced_from_docs") continue;
+  for (const c of sourced) {
     const vs = verdicts.get(c.id) ?? [];
     const pick = (v: Verdict["verdict"]) => vs.find((x) => x.verdict === v);
     const best = pick("supported") ?? pick("partially_supported") ?? pick("source_unreachable") ?? pick("unsupported");
     if (!best) {
-      c.evidence.verification = { verdict: "source_unreachable", note: "Verifier returned no result." };
+      c.evidence.verification = { verdict: "source_unreachable", note: "Verifier returned no result for this claim." };
     } else if (best.verdict === "unsupported") {
       c.evidence.verification = { verdict: "unsupported", note: best.note, original_status: "sourced_from_docs" };
       c.evidence.evidence_status = "inferred";

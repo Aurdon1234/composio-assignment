@@ -22,8 +22,8 @@ export async function research(resolved: Resolved, onProgress?: ProgressFn): Pro
   const res = await llm().runWebAgent({
     system: RESEARCH_SYSTEM,
     user: researchUserPrompt(resolved),
-    maxSearches: 10,
-    maxFetches: 12,
+    maxSearches: 5,
+    maxFetches: 10,
     effort: "medium",
     onProgress,
   });
