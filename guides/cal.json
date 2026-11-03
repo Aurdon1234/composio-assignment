@@ -1,0 +1,672 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_version": "0.1.0",
+  "generated_at": "2026-11-03T13:43:52.576Z",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "query": "cal.com",
+  "status": "complete",
+  "app": {
+    "name": "Cal",
+    "slug": "cal",
+    "website": "https://cal.com",
+    "developer_portal_url": "https://app.cal.com/settings/developer/oauth",
+    "oauth_docs_url": "https://cal.com/docs/api-reference/v2/oauth"
+  },
+  "verdict": {
+    "tier": "self_serve_with_review",
+    "summary": "Cal.com provides standard OAuth 2.0 with PKCE and confidential client support. However, newly created OAuth clients start in a pending state and require administrative review before they can authorize users.",
+    "evidence": {
+      "evidence_status": "sourced_from_docs",
+      "source_urls": [
+        "https://cal.com/docs/api-reference/v2/oauth"
+      ],
+      "probe_ids": [],
+      "note": "Documentation states that newly created OAuth clients start in a pending state and must be reviewed and accepted by a Cal.com admin.",
+      "verification": {
+        "verdict": "supported",
+        "note": "Newly created OAuth client will be in a pending state and not yet ready to use... admin from Cal.com will then review"
+      }
+    }
+  },
+  "time": {
+    "effort_minutes": {
+      "min": 30,
+      "max": 60,
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Estimated time to register the app, store credentials, and integrate the OAuth authorization code flow."
+      }
+    },
+    "wait_days": {
+      "min": null,
+      "max": null,
+      "published_by_provider": false,
+      "community_reported": false,
+      "applies_to": "All newly created OAuth clients requiring admin review before going live.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Cal.com requires admin review for pending clients but does not publish a specific turnaround timeline.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Source mentions admin review and pending state, but does not specify a timeline of '? to ? days'."
+        }
+      }
+    },
+    "confidence": "medium"
+  },
+  "blockers": [
+    {
+      "type": "other",
+      "description": "Newly created OAuth clients start in a pending state and require administrative review and acceptance before they can be used.",
+      "applies_when": "Immediately upon creating an OAuth client, before any user authorizations can occur.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Docs state newly created clients are pending and require admin acceptance.",
+        "verification": {
+          "verdict": "supported",
+          "note": "The OAuth client will be in a pending state and not yet ready to use. You must select at least one scope"
+        }
+      }
+    }
+  ],
+  "prerequisites": [
+    {
+      "item": "A standard Cal.com user account to access developer settings.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Account is required to access the developer dashboard.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Mentions creating an OAuth client via page, but doesn't explicitly mention 'standard Cal.com user account to access developer settings'."
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "title": "Choose the App Integration Model",
+      "detail": "Decide between configuring standard OAuth 2.0 clients (supporting confidential clients with a client_secret or public clients using PKCE) or platform/managed-user workflows where backend-managed users are created programmatically.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Determines how users and authentication tokens will be managed.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth",
+          "https://cal.com/docs/platform/quickstart"
+        ],
+        "probe_ids": [],
+        "note": "Docs describe both standard OAuth clients and platform managed-user workflows.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Describes setting up standard OAuth clients or creating managed users via API."
+        }
+      }
+    },
+    {
+      "order": 2,
+      "title": "Create an OAuth Client",
+      "detail": "Navigate to the Cal.com developer dashboard at https://app.cal.com/settings/developer/oauth to register a new OAuth client, providing app details and at least one scope.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human login to the developer portal.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Registration happens through the settings portal.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You can create an OAuth client via the following page https://app.cal.com/settings/developer/oauth... You must select at least one scope"
+        }
+      }
+    },
+    {
+      "order": 3,
+      "title": "Configure Redirect URIs",
+      "detail": "Register up to 10 redirect URIs for your client. Ensure exact matching since wildcards are not permitted.",
+      "owner": "developer",
+      "agent_can_automate": true,
+      "notes": "Agent can verify configuration parameters match code expectations.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Up to 10 redirect URIs, exact match required, no wildcards.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You can register up to 10 redirect URIs per OAuth client. Each redirect URI is matched exactly... Wildcards (*) are not supported"
+        }
+      }
+    },
+    {
+      "order": 4,
+      "title": "Store Credentials",
+      "detail": "Securely save your Client ID and Client Secret (if confidential client) in your application's environment configuration.",
+      "owner": "agent",
+      "agent_can_automate": true,
+      "notes": "Standard environment variable setup.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Standard OAuth implementation practice.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "No source cited for this claim, so there is nothing to check."
+        }
+      }
+    },
+    {
+      "order": 5,
+      "title": "Implement the OAuth Flow",
+      "detail": "Implement the authorization code flow, directing users to the authorize endpoint and handling token exchange at the token endpoint using the provided endpoints and PKCE S256 if public.",
+      "owner": "agent",
+      "agent_can_automate": true,
+      "notes": "Endpoints verified via server metadata.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2",
+          "p3",
+          "p4",
+          "p6"
+        ],
+        "note": "Endpoints and PKCE methods confirmed via RFC 8414 metadata.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "order": 6,
+      "title": "Wait for Admin Review and Approval",
+      "detail": "Wait for a Cal.com administrator to review and accept your pending OAuth client before attempting production authorizations.",
+      "owner": "provider",
+      "agent_can_automate": false,
+      "notes": "Required before app becomes active.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Newly created clients start in a pending state awaiting review.",
+        "verification": {
+          "verdict": "supported",
+          "note": "An admin from Cal.com will then review your OAuth client and you will receive an email if it was accepted"
+        }
+      }
+    }
+  ],
+  "review_triggering_scopes": [],
+  "technical": [
+    {
+      "fact": "Authorization endpoint is https://app.cal.com/auth/oauth2/authorize",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2",
+          "p3"
+        ],
+        "note": "Discovered via RFC 8414 metadata and verified with a probe.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "Token endpoint is https://api.cal.com/v2/auth/oauth2/token",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2",
+          "p4"
+        ],
+        "note": "Discovered via RFC 8414 metadata and verified with a probe.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "PKCE is supported with code_challenge_methods_supported: S256",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2",
+          "p6"
+        ],
+        "note": "Explicitly advertised in the authorization server metadata.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "Access tokens are valid for 60 minutes and refresh tokens are valid for 1 year.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/introduction"
+        ],
+        "probe_ids": [],
+        "note": "Stated in the API v2 introduction documentation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "access tokens are valid for 60 minutes and refresh tokens for 1 year"
+        }
+      }
+    },
+    {
+      "fact": "Redirect URIs must match exactly and do not support wildcards (*).",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Stated in the OAuth reference guide.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Each redirect URI is matched exactly as registered... Wildcards ( * ) are not supported in the host or path"
+        }
+      }
+    },
+    {
+      "fact": "No OpenID Connect discovery document was found at the standard location(s) checked.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p1"
+        ],
+        "note": "Observed directly by probe p1 at 2026-11-03T13:43:32.365Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "The discovery metadata advertises no dynamic client registration endpoint: the OAuth app must be registered manually in the provider console.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p5"
+        ],
+        "note": "Observed directly by probe p5 at 2026-11-03T13:43:34.522Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "description": "Assuming newly created OAuth clients are immediately active without waiting for the admin pending review.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Clients start pending until accepted.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source states that newly created clients start in a pending state and require admin review before they can be used.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "description": "Attempting to use wildcard characters (*) in redirect URI configurations.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Wildcards are explicitly rejected.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source explicitly states: Wildcards (*) are not supported in the host or path.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "description": "Failing to include at least one scope when registering the client.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/oauth"
+        ],
+        "probe_ids": [],
+        "note": "Must select at least one scope during creation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You must select at least one scope when creating the OAuth client."
+        }
+      }
+    }
+  ],
+  "escalation_path": [
+    {
+      "channel": "Cal.com Support Portal",
+      "url": "https://go.cal.com/support",
+      "when_to_use": "When encountering integration issues, review delays, or account questions.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://cal.com/docs/api-reference/v2/introduction"
+        ],
+        "probe_ids": [
+          "p13"
+        ],
+        "note": "Official support channel listed in documentation. [link check: URL loads]",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 3 mentions contact support for higher rate limits, but does not contain the URL https://go.cal.com/support.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://cal.com/docs/api-reference/v2/introduction",
+      "title": "Introduction to API v2 - Cal.com Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:42:59.516Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://cal.com/docs/api-reference/v2/oauth",
+      "title": "OAuth - Cal.com Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:42:59.516Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://cal.com/docs/atoms/introduction",
+      "title": "Introduction to Cal.com Atoms - Cal.com Docs",
+      "source_type": "other",
+      "retrieved_at": "2026-11-03T13:43:21.920Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://cal.com/docs/api-reference/v2/access-control",
+      "title": "Access Control - Cal.com Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:43:21.920Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://cal.com/docs/platform/quickstart",
+      "title": "Quickstart - Cal.com Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:43:21.920Z",
+      "retrieval": "fetched"
+    }
+  ],
+  "probes": [
+    {
+      "id": "p1",
+      "kind": "openid_configuration",
+      "target_url": "https://cal.com/.well-known/openid-configuration",
+      "method": "GET",
+      "outcome": "negative",
+      "http_status": 404,
+      "summary": "No OpenID Connect discovery document at 1 candidate location(s).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://cal.com/.well-known/openid-configuration",
+            "status": 404
+          }
+        ]
+      },
+      "timestamp": "2026-11-03T13:43:32.365Z"
+    },
+    {
+      "id": "p2",
+      "kind": "oauth_authorization_server_metadata",
+      "target_url": "https://cal.com/.well-known/oauth-authorization-server",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "RFC 8414 authorization server metadata found (issuer: https://cal.com).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://cal.com/.well-known/oauth-authorization-server",
+            "status": 200
+          }
+        ],
+        "issuer": "https://cal.com",
+        "authorization_endpoint": "https://app.cal.com/auth/oauth2/authorize",
+        "token_endpoint": "https://api.cal.com/v2/auth/oauth2/token",
+        "code_challenge_methods_supported": [
+          "S256"
+        ],
+        "grant_types_supported": [
+          "authorization_code",
+          "refresh_token"
+        ],
+        "response_types_supported": [
+          "code"
+        ],
+        "token_endpoint_auth_methods_supported": [
+          "client_secret_post",
+          "none"
+        ],
+        "scopes_supported_count": 62
+      },
+      "timestamp": "2026-11-03T13:43:32.718Z"
+    },
+    {
+      "id": "p3",
+      "kind": "authorize_endpoint_reachability",
+      "target_url": "https://app.cal.com/auth/oauth2/authorize",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Authorization endpoint (from discovery metadata) responds to a request with a fake client_id (HTTP 200).",
+      "details": {
+        "final_url": "https://app.cal.com/auth/oauth2/authorize?response_type=code&client_id=oauth-guide-probe-nonexistent-client",
+        "redirects": [],
+        "mentions_oauth_error": false
+      },
+      "timestamp": "2026-11-03T13:43:34.121Z"
+    },
+    {
+      "id": "p4",
+      "kind": "token_endpoint_reachability",
+      "target_url": "https://api.cal.com/v2/auth/oauth2/token",
+      "method": "POST",
+      "outcome": "positive",
+      "http_status": 400,
+      "summary": "Token endpoint (from discovery metadata) is live: an unauthenticated request with a fake code returned OAuth error \"invalid_request\" (HTTP 400).",
+      "details": {
+        "final_url": "https://api.cal.com/v2/auth/oauth2/token",
+        "oauth_error": "invalid_request"
+      },
+      "timestamp": "2026-11-03T13:43:34.522Z"
+    },
+    {
+      "id": "p5",
+      "kind": "dynamic_client_registration",
+      "target_url": "https://cal.com/.well-known/oauth-authorization-server",
+      "method": "none",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "Discovery metadata does not advertise a registration_endpoint, so dynamic client registration is likely unsupported.",
+      "details": {},
+      "timestamp": "2026-11-03T13:43:34.522Z"
+    },
+    {
+      "id": "p6",
+      "kind": "pkce_support",
+      "target_url": "https://cal.com/.well-known/oauth-authorization-server",
+      "method": "none",
+      "outcome": "positive",
+      "http_status": null,
+      "summary": "Metadata advertises code_challenge_methods_supported: S256.",
+      "details": {
+        "code_challenge_methods_supported": [
+          "S256"
+        ]
+      },
+      "timestamp": "2026-11-03T13:43:34.522Z"
+    },
+    {
+      "id": "p7",
+      "kind": "doc_page_exists",
+      "target_url": "https://cal.com/docs/api-reference/v2/oauth",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://cal.com/docs/api-reference/v2/oauth",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:43:34.659Z"
+    },
+    {
+      "id": "p8",
+      "kind": "doc_page_exists",
+      "target_url": "https://cal.com/docs/api-reference/v2/introduction",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://cal.com/docs/api-reference/v2/introduction",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:43:34.830Z"
+    },
+    {
+      "id": "p9",
+      "kind": "doc_page_exists",
+      "target_url": "https://cal.com/docs/api-reference/v2/access-control",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://cal.com/docs/api-reference/v2/access-control",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:43:35.176Z"
+    },
+    {
+      "id": "p10",
+      "kind": "doc_page_exists",
+      "target_url": "https://cal.com/docs/platform/quickstart",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://cal.com/docs/platform/quickstart",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:43:35.605Z"
+    },
+    {
+      "id": "p11",
+      "kind": "doc_page_exists",
+      "target_url": "https://cal.com",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://cal.com/",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:43:52.898Z"
+    },
+    {
+      "id": "p12",
+      "kind": "doc_page_exists",
+      "target_url": "https://app.cal.com/settings/developer/oauth",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200) — redirects to sign-in, as expected for a developer console.",
+      "details": {
+        "final_url": "https://app.cal.com/auth/login",
+        "redirects": [
+          "https://app.cal.com/auth/login"
+        ],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:43:54.689Z"
+    },
+    {
+      "id": "p13",
+      "kind": "doc_page_exists",
+      "target_url": "https://go.cal.com/support",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://go.cal.com/support",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:43:55.718Z"
+    }
+  ],
+  "limitations": [
+    "No accounts were created, no forms submitted, no OAuth apps registered, and no credentials were used. Probes are unauthenticated GET requests against public discovery documents, endpoints and documentation pages, plus one unauthenticated POST to the token endpoint with a fake authorization code and a nonexistent client_id (to confirm it answers with an OAuth error).",
+    "Review timelines are only marked as sourced when an official provider page states them. Community-reported timelines are labeled as such.",
+    "Provider policies change; check the linked sources before relying on a requirement."
+  ],
+  "verification_summary": {
+    "claims_total": 22,
+    "by_status": {
+      "verified_by_test": 6,
+      "sourced_from_docs": 11,
+      "inferred": 5,
+      "unknown": 0
+    },
+    "downgraded": 3,
+    "unreachable_sources": 0
+  }
+}

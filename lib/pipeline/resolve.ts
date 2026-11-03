@@ -40,7 +40,10 @@ export async function resolve(query: string, onProgress?: ProgressFn): Promise<R
   if (/^https?:\/\/|^[\w-]+(\.[\w-]+)+(\/|$)/i.test(q)) {
     const u = new URL(/^https?:\/\//.test(q) ? q : `https://${q}`);
     website = u.origin;
-    name = titleCase(u.hostname.replace(/^www\./, "").split(".")[0]);
+    const host = u.hostname.replace(/^www\./, "");
+    const label = host.split(".")[0];
+    // Short labels are usually brand names that include the TLD (Cal.com, X.ai); keep the full host.
+    name = label.length <= 4 ? host.charAt(0).toUpperCase() + host.slice(1) : titleCase(label);
   } else {
     name = titleCase(q);
   }
