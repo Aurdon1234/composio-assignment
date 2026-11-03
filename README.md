@@ -2,6 +2,7 @@
 
 **Will I be blocked, and for how long?** A developer building an AI agent needs their users to connect apps like Slack or Google. First they have to create an OAuth app with each provider, and sometimes get it reviewed. This project answers, for any app: how hard that is, how much of your own time it takes vs. how long you wait on the provider, what can block you, and which steps an agent can do for you. Every claim says how we know it.
 
+- **Live demo:** https://composio-assignment-sigma-green.vercel.app/
 - **Library:** guides for GitHub, Slack, Google Workspace, LinkedIn and Shopify, plus Cal.com (generated live).
 - **Live generation:** type any app name or URL; a research agent investigates it and publishes a shareable guide in 1–4 minutes.
 - **Evidence labels on every claim:** ✓ Tested (we observed it with a public probe) · § From docs (a cited official page states it, and a separate verifier re-read the page) · ~ Inferred (our estimate, a community report, or something the verifier could not confirm) · ? Unknown.
@@ -68,7 +69,7 @@ Environment variables (see `.env.example`):
 |---|---|---|
 | `GEMINI_API_KEY` | research, extraction, verification | Free at aistudio.google.com |
 | `TAVILY_API_KEY` | web search | Free at tavily.com (1,000 searches/month). Without it, DuckDuckGo is used, which rate-limits automated queries |
-| `BLOB_READ_WRITE_TOKEN` | saving live guides on Vercel | Create a Blob store in the Vercel project. Locally, guides are saved to `/guides` |
+| `BLOB_STORE_ID` or `BLOB_READ_WRITE_TOKEN` | saving live guides on Vercel | Set automatically when you connect a Blob store to the Vercel project (newer stores use `BLOB_STORE_ID` with Vercel OIDC). Locally, guides are saved to `/guides`. `GET /api/health` shows whether Blob access works |
 | `ANTHROPIC_API_KEY`, `LLM_PROVIDER=anthropic` | optional alternative model | Uses Claude's server-side web search and fetch |
 
 Generate library guides from the command line:
