@@ -1,6 +1,18 @@
-export function normUrl(u: string): string {
+/** Drop locale switches (?hl=fa) so we cite the default-language page. Evaluation found Persian/Arabic Google docs cited. */
+export function cleanUrl(u: string): string {
   try {
     const x = new URL(u);
+    x.searchParams.delete("hl");
+    x.hash = "";
+    return x.toString();
+  } catch {
+    return u;
+  }
+}
+
+export function normUrl(u: string): string {
+  try {
+    const x = new URL(cleanUrl(u));
     x.hash = "";
     let s = x.toString();
     if (s.endsWith("/")) s = s.slice(0, -1);

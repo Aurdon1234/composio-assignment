@@ -8,8 +8,10 @@ Find out:
 1. Where to register an OAuth app and what's needed (account type, org/workspace, admin rights, paid plan?). If the provider offers several app types (e.g. GitHub App vs OAuth App, public vs custom/private app), what each allows and which the provider recommends.
 2. Step-by-step setup: create app, configure redirect URIs, choose scopes, get credentials, test.
 3. Whether unreviewed apps are limited (e.g. only test users, only the developer's own workspace/org, user caps, "unverified app" warnings, development mode).
-4. App review / verification / partner programs: what triggers them (which scopes, distribution, user count), what must be submitted (privacy policy, homepage, demo video, security assessment, business verification documents), and how long the provider says review takes. If the provider publishes no timeline, say "not published". Community-reported timelines must be labeled as community-reported.
-5. Scopes that trigger review or are restricted. Use exact scope names as the docs spell them.
+4. App review / verification / partner programs: what triggers them (which scopes, distribution, user count), what must be submitted (privacy policy, homepage, demo video, security assessment, business verification documents), and how long the provider says review takes. Fetch the provider's review/verification/marketplace guide pages and look specifically for duration statements ("up to 10 business days", "several weeks"); QUOTE them verbatim with the review type they apply to (e.g. preliminary vs functional review, sensitive vs restricted scopes). If the provider publishes no timeline, say "not published". Community-reported timelines must be labeled as community-reported.
+   Note when a requirement applies only in a specific case (e.g. only paid Marketplace listings, only public distribution).
+5. Scopes that trigger review or are restricted. Copy exact scope strings as the docs spell them (e.g. \`admin.*\`, \`https://www.googleapis.com/auth/gmail.readonly\`). Do not give your own examples of "sensitive-looking" scopes.
+5b. Token lifetimes and refresh: how long access tokens last, whether refresh tokens are available to everyone or only some partners (this decides whether users must re-authorize periodically).
 6. Technical rules: PKCE requirements, redirect URI rules (https, localhost, exact match, wildcards), token lifetimes, refresh tokens.
 7. Common pitfalls developers hit.
 8. Where to go when blocked: support channels, forms, forums, partner contacts.

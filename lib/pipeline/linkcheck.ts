@@ -23,7 +23,7 @@ export async function linkCheck(g: Guide, onProgress?: ProgressFn): Promise<Guid
         return null;
       }
     })();
-    const signIn = !!final && r.finalUrl !== url && /login|signin|sign-in|session|auth/i.test(final.pathname + final.search);
+    const signIn = !!final && r.finalUrl !== url && /(^|\/)(login|signin|sign-in|sign_in|session|auth)(\/|$)/i.test(final.pathname);
     // A redirect to a sign-in page means the console exists but needs an account (expected for dev portals).
     const ok = r.ok || signIn;
     const p: Probe = {

@@ -11,7 +11,7 @@ import {
 import type { DraftGuide } from "./extract";
 import type { Resolved } from "./resolve";
 
-export const PIPELINE_VERSION = "0.1.0";
+export const PIPELINE_VERSION = "0.2.0";
 
 const COMMUNITY_HOSTS = [
   "reddit.com",
@@ -25,13 +25,38 @@ const COMMUNITY_HOSTS = [
   "youtube.com",
 ];
 
-export function classifySource(url: string, modelLabel?: SourceType): SourceType {
+const registrable = (host: string) => host.toLowerCase().replace(/^www\./, "").split(".").slice(-2).join(".");
+
+/**
+ * Source type. "Official" is decided by domain, not by the model's label: the host must
+ * belong to the provider (its website, console or docs domains). Evaluation found the model
+ * labeling a third-party blog (apideck.com) as official docs.
+ */
+export function classifySource(url: string, modelLabel: SourceType | undefined, officialHosts: Set<string>): SourceType {
   let host = "";
   try {
     host = new URL(url).hostname.toLowerCase();
   } catch {}
   if (COMMUNITY_HOSTS.some((h) => host.includes(h))) return "community";
-  return modelLabel ?? "other";
+  const official = officialHosts.has(registrable(host)) || officialHosts.has(host);
+  if (official) return modelLabel && modelLabel.startsWith("official") ? modelLabel : "official_docs";
+  return modelLabel === "community" ? "community" : "other";
+}
+
+/** Provider-owned hosts: website, console and docs URLs from the draft + resolver, plus the provider's brand token. */
+function providerHosts(draft: DraftGuide, resolved: Resolved): Set<string> {
+  const out = new Set<string>();
+  for (const u of [draft.app.website, draft.app.developer_portal_url, draft.app.oauth_docs_url, resolved.website]) {
+    if (!u) continue;
+    try {
+      const h = new URL(u).hostname.toLowerCase();
+      out.add(h);
+      out.add(registrable(h));
+    } catch {}
+  }
+  // Docs hosted on a parent company's domain (LinkedIn docs live on learn.microsoft.com/linkedin)
+  // are accepted only via the explicit oauth_docs_url host added above.
+  return out;
 }
 
 const isOfficial = (t: SourceType) => t === "official_docs" || t === "official_blog" || t === "official_forum";
@@ -52,7 +77,8 @@ export function assembleGuide(args: {
   const { draft, resolved, retrieved, probes } = args;
   const probeById = new Map(probes.map((p) => [p.id, p]));
   const modelTypes = new Map(draft.sources.map((s) => [normUrl(s.url), s.source_type]));
-  const typeOf = (u: string) => classifySource(u, modelTypes.get(normUrl(u)));
+  const officialHosts = providerHosts(draft, resolved);
+  const typeOf = (u: string) => classifySource(u, modelTypes.get(normUrl(u)), officialHosts);
 
   const fix = (e: DraftGuide["verdict"]["evidence"], opts: { requireOfficial?: boolean } = {}): Evidence => {
     const notes: string[] = [];
@@ -73,9 +99,10 @@ export function assembleGuide(args: {
       status = "inferred";
       notes.push("no retrievable source, downgraded to inferred");
     }
-    if (status === "sourced_from_docs" && opts.requireOfficial && !kept.some((u) => isOfficial(typeOf(u)))) {
+    // "From docs" means the provider's own docs. Claims backed only by blogs/forums are inferred.
+    if (status === "sourced_from_docs" && !kept.some((u) => isOfficial(typeOf(u)))) {
       status = "inferred";
-      notes.push("only non-official sources, so treated as inferred");
+      notes.push(opts.requireOfficial ? "timeline only from non-official sources, so treated as inferred" : "only non-official sources (e.g. third-party blogs), so treated as inferred");
     }
     return {
       evidence_status: status,

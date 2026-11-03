@@ -8,7 +8,7 @@
   "app": {
     "name": "Cal",
     "slug": "cal",
-    "website": "https://cal.com",
+    "website": "https://cal.com/",
     "developer_portal_url": "https://app.cal.com/settings/developer/oauth",
     "oauth_docs_url": "https://cal.com/docs/api-reference/v2/oauth"
   },
@@ -608,7 +608,7 @@
     {
       "id": "p11",
       "kind": "doc_page_exists",
-      "target_url": "https://cal.com",
+      "target_url": "https://cal.com/",
       "method": "GET",
       "outcome": "positive",
       "http_status": 200,

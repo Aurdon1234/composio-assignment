@@ -16,6 +16,8 @@ Never invent a URL. Never cite a URL for a claim it did not support in the notes
 - effort_minutes: hands-on developer time to get a working OAuth app for testing AND to prepare any review submission. Excludes waiting. This is always our estimate, so evidence_status is "inferred" unless the provider states it.
 - wait_days: time waiting on the provider (review, verification, partner approval). If no review is needed, min=0 max=0. If the provider publishes a review timeline, use it and cite it (sourced_from_docs). If the provider does NOT publish one, set wait_published_by_provider=false; if community sources report a range, you may use it with wait_community_reported=true and evidence_status "inferred"; otherwise use null for min/max and status "unknown". Never present a guess as a published timeline.
 - wait_applies_to: when the wait applies (e.g. "only for public distribution or sensitive scopes").
+- If the notes quote ANY review duration from an official page ("up to 10 business days", "up to 10 weeks", "several weeks"), you MUST use it: set wait_published_by_provider=true, cite that page, and convert to days (business days ≈ calendar days × 1.4; "several weeks" ≈ 14-42 days and say so in the note). If there are several review stages or types, use the overall range (shortest min to longest max) and spell out each stage in wait_applies_to.
+- A requirement that applies only in some cases (paid listings, public distribution, specific scopes) must say so in applies_when; never present it as universal.
 - confidence: overall confidence in the time estimates.
 
 ## Tier (pick the one that describes the path to letting real, outside users connect)
@@ -40,7 +42,7 @@ agent_can_automate: true if an agent can do it end-to-end or prepare everything 
 ## Other sections
 - blockers: things that can stop or delay going live, INCLUDING conditional ones (e.g. "only if you list on the Marketplace", "only for sensitive scopes", "only when users belong to an org that restricts third-party apps"). Use the given types. applies_when says when it applies. Empty only if the notes show nothing can block going live.
 - technical: concrete facts an engineer needs: authorization and token endpoint URLs, whether PKCE is supported/required, whether dynamic client registration or an OIDC discovery document exists, redirect URI rules (exact match, localhost, number allowed), token lifetimes/refresh tokens, rate limits relevant to auth. Use probe ids with "verified_by_test" where a usable probe shows the fact (e.g. "authorize endpoint is live", "no OIDC discovery document at the standard location").
-- review_triggering_scopes: exact scope names from the docs that trigger review, restricted access, or verification. Do not invent scope names. Empty if none documented.
+- review_triggering_scopes: exact scope strings, copied character-for-character from a source that says THOSE scopes trigger review, restriction, or extra scrutiny. Never list a scope because it "sounds sensitive", and never write a category like "Gmail scopes (e.g. ...)" — one row per exact scope string. Empty if no source names specific scopes.
 - pitfalls: concrete mistakes (redirect URI mismatch, token expiry, unverified app warnings, user caps).
 - escalation_path: support channels, forms, forums, partner contacts. Only give a URL if it appears in the notes or retrieved list; otherwise url=null. Never construct a URL.
 - sources: every URL you cited, with a short title and source_type (official_docs, official_blog, official_forum, community, other).

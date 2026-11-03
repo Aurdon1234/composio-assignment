@@ -8,7 +8,7 @@
   "app": {
     "name": "LinkedIn",
     "slug": "linkedin",
-    "website": "https://www.linkedin.com",
+    "website": "https://www.linkedin.com/",
     "developer_portal_url": "https://www.linkedin.com/developers/",
     "oauth_docs_url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
   },
@@ -615,7 +615,7 @@
     {
       "id": "p10",
       "kind": "doc_page_exists",
-      "target_url": "https://www.linkedin.com",
+      "target_url": "https://www.linkedin.com/",
       "method": "GET",
       "outcome": "positive",
       "http_status": 200,

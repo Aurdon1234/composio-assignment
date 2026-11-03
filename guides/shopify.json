@@ -8,7 +8,7 @@
   "app": {
     "name": "Shopify",
     "slug": "shopify",
-    "website": "https://www.shopify.com",
+    "website": "https://www.shopify.com/",
     "developer_portal_url": "https://shopify.dev/docs/apps/build/authentication-authorization",
     "oauth_docs_url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
   },
@@ -435,7 +435,7 @@
   "escalation_path": [
     {
       "channel": "Shopify Developer Community Forums",
-      "url": "https://community.shopify.dev",
+      "url": "https://community.shopify.dev/",
       "when_to_use": "For general technical questions, OAuth implementation queries, and community-based support.",
       "evidence": {
         "evidence_status": "inferred",
@@ -500,13 +500,6 @@
       "title": "About app authentication",
       "source_type": "official_docs",
       "retrieved_at": "2026-11-03T13:39:43.021Z",
-      "retrieval": "fetched"
-    },
-    {
-      "url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node",
-      "title": "Authenticate a standalone or API-only app",
-      "source_type": "official_docs",
-      "retrieved_at": "2026-11-03T13:39:47.191Z",
       "retrieval": "fetched"
     },
     {
@@ -655,7 +648,7 @@
     {
       "id": "p9",
       "kind": "doc_page_exists",
-      "target_url": "https://www.shopify.com",
+      "target_url": "https://www.shopify.com/",
       "method": "GET",
       "outcome": "positive",
       "http_status": 200,
@@ -700,7 +693,7 @@
     {
       "id": "p12",
       "kind": "doc_page_exists",
-      "target_url": "https://community.shopify.dev",
+      "target_url": "https://community.shopify.dev/",
       "method": "GET",
       "outcome": "positive",
       "http_status": 200,

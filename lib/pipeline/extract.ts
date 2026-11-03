@@ -66,6 +66,14 @@ export function coverageGaps(draft: DraftGuide, notes: string): string[] {
     gaps.push("no blockers, but the notes mention approvals/verification/restrictions/plans — include conditional blockers with applies_when");
   }
   if (draft.pitfalls.length < 3 && /pitfall|error|mismatch|expire|limit/i.test(notes)) gaps.push("fewer than 3 pitfalls although the notes list more");
+  // Evaluation: Slack's guide said "not published" although the notes/sources stated review durations.
+  const duration = notes.match(/(up to|within|about|approximately|typically|several)\s+\d*\s*(business\s+)?(days?|weeks?|months?)/i);
+  if (duration && draft.time.wait_days_min === null && draft.time.wait_days_max === null) {
+    gaps.push(`the notes mention a review duration ("${duration[0]}") but wait_days is empty; use the published timeline and cite it`);
+  }
+  if (draft.review_triggering_scopes.some((s) => /e\.g\.|scopes? \(|, /i.test(s.scope))) {
+    gaps.push("review_triggering_scopes contains categories/examples instead of one exact scope string per row");
+  }
   if (draft.technical.length < 3) gaps.push("fewer than 3 technical facts (endpoints, PKCE, redirect rules, token lifetimes)");
   if (/github app|custom app|private app|public app|app type/i.test(notes) && !draft.steps.some((s) => /choose|decide|type|vs\.?/i.test(s.title + s.detail))) {
     gaps.push("the notes describe more than one app type, but no step helps the developer choose between them");

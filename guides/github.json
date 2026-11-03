@@ -8,7 +8,7 @@
   "app": {
     "name": "GitHub",
     "slug": "github",
-    "website": "https://github.com",
+    "website": "https://github.com/",
     "developer_portal_url": "https://github.com/settings/developers",
     "oauth_docs_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
   },
@@ -595,7 +595,7 @@
     {
       "id": "p11",
       "kind": "doc_page_exists",
-      "target_url": "https://github.com",
+      "target_url": "https://github.com/",
       "method": "GET",
       "outcome": "positive",
       "http_status": 200,

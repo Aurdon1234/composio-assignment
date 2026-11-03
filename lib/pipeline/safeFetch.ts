@@ -83,6 +83,8 @@ export async function safeFetch(
         headers: {
           "user-agent": UA,
           accept: opts.accept ?? "*/*",
+          // Some docs sites (Google) redirect to a geo-guessed locale otherwise.
+          "accept-language": "en-US,en;q=0.9",
           ...(opts.formBody ? { "content-type": "application/x-www-form-urlencoded" } : {}),
         },
         body: opts.method === "POST" && opts.formBody ? new URLSearchParams(opts.formBody).toString() : undefined,

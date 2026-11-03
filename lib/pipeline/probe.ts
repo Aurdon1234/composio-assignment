@@ -94,7 +94,7 @@ export async function probe(resolved: Resolved, ep: Endpoints, onProgress?: Prog
   const docUrls = uniq([resolved.developer_portal_url, ...ep.review_doc_urls].filter(Boolean) as string[]).slice(0, 5);
   for (const u of docUrls) {
     const r = await safeFetch(u, { timeoutMs: 10_000 });
-    const loginWall = /login|signin|sign-in|auth/i.test(new URL(r.finalUrl).pathname) && r.finalUrl !== u;
+    const loginWall = /(^|\/)(login|signin|sign-in|sign_in|session|auth)(\/|$)/i.test(new URL(r.finalUrl).pathname) && r.finalUrl !== u;
     add({
       kind: "doc_page_exists",
       target_url: u,

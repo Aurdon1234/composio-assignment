@@ -1,4 +1,5 @@
 import { htmlToText, safeFetch } from "../pipeline/safeFetch";
+import { cleanUrl } from "./util";
 
 /**
  * Free web tools for providers without built-in search/fetch:
@@ -9,6 +10,10 @@ import { htmlToText, safeFetch } from "../pipeline/safeFetch";
 export type SearchHit = { url: string; title: string; snippet: string };
 
 export async function search(query: string, max = 8): Promise<SearchHit[]> {
+  return (await rawSearch(query, max)).map((h) => ({ ...h, url: cleanUrl(h.url) }));
+}
+
+async function rawSearch(query: string, max: number): Promise<SearchHit[]> {
   if (process.env.TAVILY_API_KEY) {
     const res = await fetch("https://api.tavily.com/search", {
       method: "POST",
@@ -56,7 +61,8 @@ async function duckDuckGoLite(query: string, max: number): Promise<SearchHit[]> 
 
 export type Page = { url: string; title: string; text: string; links: string[] } | { url: string; error: string };
 
-export async function readPage(url: string, maxChars: number): Promise<Page> {
+export async function readPage(rawUrl: string, maxChars: number): Promise<Page> {
+  const url = cleanUrl(rawUrl);
   const r = await safeFetch(url, { timeoutMs: 15000, accept: "text/html,text/plain,application/json,*/*" });
   if (!r.ok) return { url, error: r.error ?? `HTTP ${r.status}` };
   const isHtml = r.contentType?.includes("html") ?? false;
