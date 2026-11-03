@@ -30,7 +30,7 @@ export function Generator() {
   const logRef = useRef<HTMLOListElement>(null);
 
   async function run(force = false) {
-    if (!query.trim() || busy) return;
+    if (query.trim().length < 3 || busy) return;
     setBusy(true);
     setError(null);
     setStageState({});
@@ -109,7 +109,7 @@ export function Generator() {
         />
         <button
           type="submit"
-          disabled={busy || query.trim().length < 2}
+          disabled={busy || query.trim().length < 3}
           className="rounded-md bg-zinc-900 px-4 py-2 font-medium text-white hover:bg-zinc-700 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
         >
           {busy ? "Generating…" : "Get guide"}

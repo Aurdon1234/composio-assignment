@@ -1,0 +1,732 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_version": "0.1.0",
+  "generated_at": "2026-11-03T13:40:41.224Z",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "query": "Shopify",
+  "status": "complete",
+  "app": {
+    "name": "Shopify",
+    "slug": "shopify",
+    "website": "https://www.shopify.com",
+    "developer_portal_url": "https://shopify.dev/docs/apps/build/authentication-authorization",
+    "oauth_docs_url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+  },
+  "verdict": {
+    "tier": "self_serve_with_review",
+    "summary": "Shopify is self-serve for creating apps, testing, and custom/internal distribution. However, publishing a public app to the Shopify App Store requires passing a formal review by Shopify onboarding specialists.",
+    "evidence": {
+      "evidence_status": "sourced_from_docs",
+      "source_urls": [
+        "https://shopify.dev/docs/apps/build/authentication-authorization",
+        "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review"
+      ],
+      "probe_ids": [],
+      "note": "Shopify allows instant creation of apps and development stores in the Dev Dashboard, but public App Store distribution mandates a review.",
+      "verification": {
+        "verdict": "supported",
+        "note": "After you complete the automated checks and prepare your app for submission, you can submit your app for review."
+      }
+    }
+  },
+  "time": {
+    "effort_minutes": {
+      "min": 60,
+      "max": 180,
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Estimated time to configure credentials, set up the OAuth authorization code flow, implement HMAC verification, and test installation."
+      }
+    },
+    "wait_days": {
+      "min": 3,
+      "max": 10,
+      "published_by_provider": false,
+      "community_reported": true,
+      "applies_to": "Public app store submission",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Shopify does not publish an official SLA for app reviews, but community reports suggest 3 to 10+ business days. [auto-check: 1 cited URL(s) removed: not retrieved by the pipeline; no retrievable source, downgraded to inferred]",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "No source cited for this claim, so there is nothing to check."
+        }
+      }
+    },
+    "confidence": "medium"
+  },
+  "blockers": [
+    {
+      "type": "privacy_policy",
+      "description": "Public apps must provide valid compliance webhooks, privacy policy URLs, and Terms of Service.",
+      "applies_when": "Submitting a public app for Shopify App Store distribution",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review"
+        ],
+        "probe_ids": [],
+        "note": "App store requirements mandate compliance webhooks and clear documentation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Apps that are distributed through the Shopify App Store must subscribe to compliance webhooks."
+        }
+      }
+    },
+    {
+      "type": "security_assessment",
+      "description": "Protected customer data and sensitive scopes require specific justification and compliance review.",
+      "applies_when": "Requesting restricted data scopes like customer personal data or read_all_orders for public apps",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/api/usage/access-scopes",
+          "https://shopify.dev/docs/apps/build/authentication-authorization"
+        ],
+        "probe_ids": [],
+        "note": "Restricted scopes trigger deeper scrutiny during app review.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Fields that return a customer's personal data need a separate approval if your app is public."
+        }
+      }
+    }
+  ],
+  "prerequisites": [
+    {
+      "item": "A Shopify Partner account with staff permissions 'Build and manage apps' and 'Development stores'",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://help.shopify.com/en/partners/build-integrate/making-apps"
+        ],
+        "probe_ids": [],
+        "note": "Specific partner staff permissions are required to create apps and development stores.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Partner staff members need the Build and manage apps permission to create apps, and the Development stores permission to create dev stores."
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "title": "Choose App Architecture and Distribution Type",
+      "detail": "Decide between an Embedded App (runs inside Shopify admin via App Bridge), a Standalone/API-only App (runs on external servers using standard OAuth), and whether you need custom distribution (private to a merchant org) or public distribution (App Store listing).",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Custom distribution skips the review process but cannot use the Shopify Billing API.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization",
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node",
+          "https://community.shopify.dev/t/is-oauth-is-required-to-publish-an-app-to-store-without-it-we-cant-do-it/27361"
+        ],
+        "probe_ids": [],
+        "note": "Choosing the right architecture and distribution type dictates review requirements and token flows.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Choosing an approach maps each option to its setup guide, covering embedded apps, standalone apps, and custom vs public distribution."
+        }
+      }
+    },
+    {
+      "order": 2,
+      "title": "Create a Partner Account and App",
+      "detail": "Log into the Shopify Dev Dashboard and create a new app manually or scaffold it using the Shopify CLI.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human login to the Shopify partner dashboard.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization"
+        ],
+        "probe_ids": [],
+        "note": "Dashboard registration step.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Shopify apps can be built with Shopify CLI or created directly, using the Dev Dashboard."
+        }
+      }
+    },
+    {
+      "order": 3,
+      "title": "Configure Redirect URIs and Scopes",
+      "detail": "Add your exact callback redirect URIs and declare required access scopes in your app settings or config file.",
+      "owner": "developer",
+      "agent_can_automate": true,
+      "notes": "Can be defined in code config files like shopify.app.toml.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Configuring URLs and scopes.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You've added your app's redirect URI to your app's settings in the Dev Dashboard, or to the [auth] section of your shopify.app.toml."
+        }
+      }
+    },
+    {
+      "order": 4,
+      "title": "Obtain API Credentials",
+      "detail": "Retrieve your Client ID (API key) and Client Secret from the app configuration page.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Secret must be stored securely.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Credentials required for backend token exchange.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You have your app's client ID and client secret from the Dev Dashboard."
+        }
+      }
+    },
+    {
+      "order": 5,
+      "title": "Implement the OAuth Flow",
+      "detail": "Redirect merchants to the authorize endpoint, validate the state nonce, verify the HMAC signature, and exchange the code via POST request.",
+      "owner": "agent",
+      "agent_can_automate": true,
+      "notes": "Standard server-side implementation using client_id and client_secret.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "OAuth flow details.",
+        "verification": {
+          "verdict": "supported",
+          "note": "In this tutorial, you'll learn how to do the following tasks: Redirect a merchant to Shopify's authorization page, Validate the callback, Exchange the authorization code..."
+        }
+      }
+    },
+    {
+      "order": 6,
+      "title": "Test via Custom Distribution / Development Store",
+      "detail": "Install your app on a development store to test OAuth installation and API calls without public review.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Development stores allow free testing of custom and standalone app flows.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://community.shopify.dev/t/is-oauth-is-required-to-publish-an-app-to-store-without-it-we-cant-do-it/27361"
+        ],
+        "probe_ids": [],
+        "note": "Custom distribution bypasses store review.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Mentions custom distribution and dev dashboard/admin apps, but does not explicitly detail testing via a development store in this specific forum post snippet."
+        }
+      }
+    },
+    {
+      "order": 7,
+      "title": "Submit for App Store Review (Optional)",
+      "detail": "If building a public app, prepare compliance webhooks, fill out submission forms, and submit the app for review.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Required only for public distribution.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review"
+        ],
+        "probe_ids": [],
+        "note": "Public distribution review process.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Start your app review journey on the Shopify App Store review page. You'll be guided to complete mandatory fields and automated tests..."
+        }
+      }
+    }
+  ],
+  "review_triggering_scopes": [
+    {
+      "scope": "read_all_orders",
+      "why": "Grants access to historical order data beyond the default 60-day window, triggering review for public distribution.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://www.apideck.com/blog/how-to-create-a-shopify-public-oauth-app"
+        ],
+        "probe_ids": [],
+        "note": "Access to historical orders requires special scoping.",
+        "verification": {
+          "verdict": "supported",
+          "note": "By default, Shopify only gives you access to orders from the last 60 days. If your integration needs historical order data, you must request access to this scope separately..."
+        }
+      }
+    },
+    {
+      "scope": "Protected customer data scopes",
+      "why": "Scopes exposing customer personal identifiable data require review and compliance checks for public apps.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization"
+        ],
+        "probe_ids": [],
+        "note": "Protected customer data is restricted.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Fields that return a customer's personal data need a separate approval if your app is public."
+        }
+      }
+    }
+  ],
+  "technical": [
+    {
+      "fact": "Authorization endpoint is https://{shop}.myshopify.com/admin/oauth/authorize",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Stated in official authentication docs.",
+        "verification": {
+          "verdict": "supported",
+          "note": "authUrl = `https://${shop}/admin/oauth/authorize?`"
+        }
+      }
+    },
+    {
+      "fact": "Token endpoint is https://{shop}.myshopify.com/admin/oauth/access_token",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Stated in official authentication docs.",
+        "verification": {
+          "verdict": "supported",
+          "note": "shopifyFetch(`https://${shop}/admin/oauth/access_token`..."
+        }
+      }
+    },
+    {
+      "fact": "Redirect URIs must match pre-configured settings exactly.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Strict redirect URI matching enforced by Shopify.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Must exactly match a redirect URI you've configured in the Dev Dashboard or your app's configuration TOML file."
+        }
+      }
+    },
+    {
+      "fact": "Supports offline access tokens issuing refresh tokens via the expiring=1 parameter during token exchange.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Token lifespan management.",
+        "verification": {
+          "verdict": "supported",
+          "note": "body: new URLSearchParams({ ..., expiring: '1' }) and handling refresh_token."
+        }
+      }
+    },
+    {
+      "fact": "No OpenID Connect discovery document was found at the standard location(s) checked.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p1"
+        ],
+        "note": "Observed directly by probe p1 at 2026-11-03T13:40:16.639Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "No RFC 8414 authorization server metadata was found at the standard location(s) checked.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2"
+        ],
+        "note": "Observed directly by probe p2 at 2026-11-03T13:40:17.693Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "description": "Failing to validate the state query parameter against CSRF attacks.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Security requirement during callback handling.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Include a randomly generated state value (nonce) and store it so you can verify it in the next step. This prevents CSRF attacks."
+        }
+      }
+    },
+    {
+      "description": "Failing to verify the HMAC signature returned in installation callbacks using the client_secret.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ],
+        "probe_ids": [],
+        "note": "Crucial security check for Shopify install requests.",
+        "verification": {
+          "verdict": "supported",
+          "note": "const digest = crypto.createHmac('sha256', CLIENT_SECRET)..."
+        }
+      }
+    },
+    {
+      "description": "Hardcoding or exposing the client_secret in client-side code.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization"
+        ],
+        "probe_ids": [],
+        "note": "Secret handling best practice.",
+        "verification": {
+          "verdict": "supported",
+          "note": "The client secret isn't: it proves a request comes from your app, so keep it server-side and never ship it in client code."
+        }
+      }
+    }
+  ],
+  "escalation_path": [
+    {
+      "channel": "Shopify Developer Community Forums",
+      "url": "https://community.shopify.dev",
+      "when_to_use": "For general technical questions, OAuth implementation queries, and community-based support.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [
+          "p12"
+        ],
+        "note": "Developer community portal. [auto-check: 1 cited URL(s) removed: not retrieved by the pipeline; no retrievable source, downgraded to inferred] [link check: URL loads]",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "No source cited for this claim, so there is nothing to check."
+        }
+      }
+    },
+    {
+      "channel": "Shopify Partner Support",
+      "url": null,
+      "when_to_use": "For account, app build, review status, and escalation inquiries.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Accessible via the Partner Dashboard. [auto-check: 1 cited URL(s) removed: not retrieved by the pipeline; no retrievable source, downgraded to inferred]",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "No source cited for this claim, so there is nothing to check."
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://www.apideck.com/blog/how-to-create-a-shopify-public-oauth-app",
+      "title": "How to Create a Shopify Public OAuth App",
+      "source_type": "other",
+      "retrieved_at": "2026-11-03T13:39:28.536Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://community.shopify.dev/t/is-oauth-is-required-to-publish-an-app-to-store-without-it-we-cant-do-it/27361",
+      "title": "Is Oauth is Required to publish an app to store ? Without it we can't do it? - Authentication & Access - Shopify Developer Community Forums",
+      "source_type": "community",
+      "retrieved_at": "2026-11-03T13:39:28.536Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://shopify.dev/docs/api/usage/access-scopes",
+      "title": "Shopify API access scopes",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:39:28.536Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://help.shopify.com/en/partners/build-integrate/making-apps",
+      "title": "Shopify Help Center | Building and monetizing apps with Shopify's APIs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:39:28.536Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/build/authentication-authorization",
+      "title": "About app authentication",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:39:43.021Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node",
+      "title": "Authenticate a standalone or API-only app",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:39:47.191Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node",
+      "title": "Authenticate a standalone or API-only app",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:39:47.191Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review",
+      "title": "Submit your app for review",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:39:52.954Z",
+      "retrieval": "search_result"
+    }
+  ],
+  "probes": [
+    {
+      "id": "p1",
+      "kind": "openid_configuration",
+      "target_url": "https://{shop}.myshopify.com/.well-known/openid-configuration",
+      "method": "GET",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "No OpenID Connect discovery document at 2 candidate location(s).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://{shop}.myshopify.com/.well-known/openid-configuration",
+            "status": null,
+            "error": "getaddrinfo ENOTFOUND {shop}.myshopify.com"
+          },
+          {
+            "url": "https://shopify.dev/.well-known/openid-configuration",
+            "status": 404
+          }
+        ]
+      },
+      "timestamp": "2026-11-03T13:40:16.639Z"
+    },
+    {
+      "id": "p2",
+      "kind": "oauth_authorization_server_metadata",
+      "target_url": "https://{shop}.myshopify.com/.well-known/oauth-authorization-server",
+      "method": "GET",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "No RFC 8414 authorization server metadata at 2 candidate location(s).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://{shop}.myshopify.com/.well-known/oauth-authorization-server",
+            "status": null,
+            "error": "getaddrinfo ENOTFOUND {shop}.myshopify.com"
+          },
+          {
+            "url": "https://shopify.dev/.well-known/oauth-authorization-server",
+            "status": 404
+          }
+        ]
+      },
+      "timestamp": "2026-11-03T13:40:17.693Z"
+    },
+    {
+      "id": "p3",
+      "kind": "authorize_endpoint_reachability",
+      "target_url": "https://{shop}.myshopify.com/admin/oauth/authorize",
+      "method": "GET",
+      "outcome": "error",
+      "http_status": null,
+      "summary": "Authorization endpoint (from docs) unreachable: getaddrinfo ENOTFOUND {shop}.myshopify.com.",
+      "details": {
+        "final_url": "https://{shop}.myshopify.com/admin/oauth/authorize?response_type=code&client_id=oauth-guide-probe-nonexistent-client",
+        "redirects": [],
+        "mentions_oauth_error": false
+      },
+      "timestamp": "2026-11-03T13:40:17.694Z"
+    },
+    {
+      "id": "p4",
+      "kind": "token_endpoint_reachability",
+      "target_url": "https://{shop}.myshopify.com/admin/oauth/access_token",
+      "method": "POST",
+      "outcome": "error",
+      "http_status": null,
+      "summary": "Token endpoint (from docs) unreachable: getaddrinfo ENOTFOUND {shop}.myshopify.com.",
+      "details": {
+        "final_url": "https://{shop}.myshopify.com/admin/oauth/access_token",
+        "oauth_error": null
+      },
+      "timestamp": "2026-11-03T13:40:17.695Z"
+    },
+    {
+      "id": "p5",
+      "kind": "dynamic_client_registration",
+      "target_url": null,
+      "method": "none",
+      "outcome": "skipped",
+      "http_status": null,
+      "summary": "No discovery metadata, so dynamic client registration support could not be tested.",
+      "details": {},
+      "timestamp": "2026-11-03T13:40:17.695Z"
+    },
+    {
+      "id": "p6",
+      "kind": "pkce_support",
+      "target_url": null,
+      "method": "none",
+      "outcome": "skipped",
+      "http_status": null,
+      "summary": "No discovery metadata; PKCE support could not be tested, only read from docs.",
+      "details": {},
+      "timestamp": "2026-11-03T13:40:17.695Z"
+    },
+    {
+      "id": "p7",
+      "kind": "doc_page_exists",
+      "target_url": "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://shopify.dev/docs/apps/launch/app-store-review/submit-app-for-review",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:40:18.027Z"
+    },
+    {
+      "id": "p8",
+      "kind": "doc_page_exists",
+      "target_url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200), redirected to https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node — appears to require sign-in.",
+      "details": {
+        "final_url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node",
+        "redirects": [
+          "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node"
+        ]
+      },
+      "timestamp": "2026-11-03T13:40:19.589Z"
+    },
+    {
+      "id": "p9",
+      "kind": "doc_page_exists",
+      "target_url": "https://www.shopify.com",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://www.shopify.com/",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:40:41.558Z"
+    },
+    {
+      "id": "p10",
+      "kind": "doc_page_exists",
+      "target_url": "https://shopify.dev/docs/apps/build/authentication-authorization",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://shopify.dev/docs/apps/build/authentication-authorization",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:40:41.712Z"
+    },
+    {
+      "id": "p11",
+      "kind": "doc_page_exists",
+      "target_url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://shopify.dev/docs/apps/build/authentication-authorization/authenticate-standalone-apps?lang=node",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:40:41.918Z"
+    },
+    {
+      "id": "p12",
+      "kind": "doc_page_exists",
+      "target_url": "https://community.shopify.dev",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://community.shopify.dev/",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:40:43.089Z"
+    }
+  ],
+  "limitations": [
+    "No accounts were created, no forms submitted, no OAuth apps registered, and no credentials were used. Probes are unauthenticated GET requests against public discovery documents, endpoints and documentation pages, plus one unauthenticated POST to the token endpoint with a fake authorization code and a nonexistent client_id (to confirm it answers with an OAuth error).",
+    "Review timelines are only marked as sourced when an official provider page states them. Community-reported timelines are labeled as such.",
+    "Provider policies change; check the linked sources before relying on a requirement."
+  ],
+  "verification_summary": {
+    "claims_total": 26,
+    "by_status": {
+      "verified_by_test": 2,
+      "sourced_from_docs": 20,
+      "inferred": 4,
+      "unknown": 0
+    },
+    "downgraded": 0,
+    "unreachable_sources": 0
+  }
+}

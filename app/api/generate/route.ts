@@ -21,8 +21,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "Body must be JSON: {\"query\": \"app name or URL\"}" }, { status: 400 });
   }
   const query = typeof body.query === "string" ? body.query.trim() : "";
-  if (query.length < 2 || query.length > 200) {
-    return Response.json({ error: "query must be an app name or URL (2-200 characters)" }, { status: 400 });
+  if (query.length < 3 || query.length > 200) {
+    return Response.json({ error: "Enter an app name or website (3-200 characters)." }, { status: 400 });
   }
 
   const encoder = new TextEncoder();

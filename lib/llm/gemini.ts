@@ -120,6 +120,7 @@ You can call web_search(query) and fetch_page(url). Budget: ${searchesLeft} sear
 
     let contents: Content[] = [{ role: "user", parts: [{ text: opts.user }] }];
     let pinned: string | undefined; // keep one model for the whole tool loop (thought signatures are model-specific)
+    let nudged = false;
 
     for (let turn = 0; turn < maxTurns; turn++) {
       const lastTurn = turn === maxTurns - 1 || (searchesLeft <= 0 && fetchesLeft <= 0);
@@ -151,7 +152,26 @@ You can call web_search(query) and fetch_page(url). Budget: ${searchesLeft} sear
       pinned = res.usedModel;
       const content = res.candidates?.[0]?.content;
       const calls = res.functionCalls ?? [];
-      if (!content || calls.length === 0) return { text: res.text ?? "", retrieved, fetchedText };
+      if (!content || calls.length === 0) {
+        // Weaker models sometimes answer from search snippets + memory without reading any page.
+        // Send them back once to read the key official pages first.
+        const minFetches = Math.min(3, opts.maxFetches ?? 8);
+        if (content && !nudged && fetchedText.size < minFetches && fetchesLeft > 0 && turn < maxTurns - 2) {
+          nudged = true;
+          const candidates = [...retrieved.values()].filter((r) => r.retrieval === "search_result").slice(0, 10);
+          opts.onProgress?.(`agent answered after reading ${fetchedText.size} page(s); asking it to read official pages first`);
+          contents.push(content, {
+            role: "user",
+            parts: [
+              {
+                text: `You have read ${fetchedText.size} page(s) in full. Search snippets are not reliable evidence. Before answering, call fetch_page on the ${minFetches}+ most relevant official documentation pages (you can call several at once), then write your answer citing the pages you read. Candidates from your searches:\n${candidates.map((c) => `- ${c.url} (${c.title})`).join("\n")}`,
+              },
+            ],
+          });
+          continue;
+        }
+        return { text: res.text ?? "", retrieved, fetchedText };
+      }
       contents.push(content);
 
       const now = new Date().toISOString();

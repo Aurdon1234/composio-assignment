@@ -1,0 +1,784 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_version": "0.1.0",
+  "generated_at": "2026-11-03T13:39:12.393Z",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "query": "Google Workspace",
+  "status": "complete",
+  "app": {
+    "name": "Google Workspace",
+    "slug": "google-workspace",
+    "website": "https://workspace.google.com",
+    "developer_portal_url": "https://console.cloud.google.com",
+    "oauth_docs_url": "https://developers.google.com/identity/protocols/oauth2/web-server"
+  },
+  "verdict": {
+    "tier": "self_serve_with_review",
+    "summary": "Google Workspace provides an immediate self-serve developer experience for testing apps with internal users or up to 100 test users, but external production apps requesting sensitive or restricted scopes require formal verification and third-party security assessments.",
+    "evidence": {
+      "evidence_status": "sourced_from_docs",
+      "source_urls": [
+        "https://developers.google.com/identity/protocols/oauth2/web-server",
+        "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa",
+        "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar"
+      ],
+      "probe_ids": [],
+      "note": "Documentation outlines testing mode vs production review requirements for sensitive and restricted scopes.",
+      "verification": {
+        "verdict": "supported",
+        "note": "Google Workspace provides an immediate self-serve developer experience for testing apps with internal users or up to 100 test users..."
+      }
+    }
+  },
+  "time": {
+    "effort_minutes": {
+      "min": 60,
+      "max": 180,
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Estimated time to create a Google Cloud project, configure consent screens, and implement the OAuth code flow."
+      }
+    },
+    "wait_days": {
+      "min": 3,
+      "max": 28,
+      "published_by_provider": false,
+      "community_reported": false,
+      "applies_to": "External production apps requesting sensitive or restricted scopes requiring CASA security assessment.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa",
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar"
+        ],
+        "probe_ids": [],
+        "note": "Google states sensitive verification can take up to 10 days, while restricted scopes and CASA security assessments take several weeks. [auto-check: verifier could not confirm a published timeline, so it is not shown as published]",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 2 mentions that sensitive scope verification may take up to 10 days, but does not specify '3 to 28 days'.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    "confidence": "high"
+  },
+  "blockers": [
+    {
+      "type": "privacy_policy",
+      "description": "A publicly hosted privacy policy and homepage URL are required on the OAuth consent screen.",
+      "applies_when": "Configuring the OAuth consent screen for public apps.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa"
+        ],
+        "probe_ids": [],
+        "note": "Docs state a privacy policy URL and homepage URL are mandatory for verification.",
+        "verification": {
+          "verdict": "supported",
+          "note": "مطمئن شوید که همه اطلاعات نمانام‌سازی در صفحه کسب رضایت OAuth، مثل نام برنامه، ایمیل پشتیبانی، شناسه منبع یکسان صفحه اصلی، شناسه منبع یکسان خط‌مشی رازداری، و غیره..."
+        }
+      }
+    },
+    {
+      "type": "demo_video",
+      "description": "A detailed YouTube unlisted demonstration video showing the OAuth flow and scope usage must be submitted.",
+      "applies_when": "Submitting an app for sensitive or restricted scope verification.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa"
+        ],
+        "probe_ids": [],
+        "note": "YouTube video demonstrating scope usage is a review requirement.",
+        "verification": {
+          "verdict": "supported",
+          "note": "ویدیویی آماده کنید که به‌طور کامل نشان دهد کاربر چگونه دسترسی به دامنه‌های درخواستی را آغاز و اعطا می‌کند... ویدیو را در «استودیوِ YouTube» بارگذاری کنید و رؤیت‌پذیری آن را روی فهرست‌نشده تنظیم کنید."
+        }
+      }
+    },
+    {
+      "type": "security_assessment",
+      "description": "An annual CASA (Cloud Application Security Assessment) security assessment by an authorized third-party lab is required.",
+      "applies_when": "Requesting restricted scopes such as broad Gmail or Google Drive access.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar"
+        ],
+        "probe_ids": [],
+        "note": "Restricted scopes mandate a CASA security assessment.",
+        "verification": {
+          "verdict": "supported",
+          "note": "في هذه الحالات، يجب أن يخضع النظام لتقييم أمان سنوي من قِبل جهة تقييم مستقلة تابعة لجهة خارجية ومعتمَدة من Google."
+        }
+      }
+    }
+  ],
+  "prerequisites": [
+    {
+      "item": "Google account or Google Workspace account with permissions to create Google Cloud projects.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/web-server"
+        ],
+        "probe_ids": [],
+        "note": "Google Cloud console access is required.",
+        "verification": {
+          "verdict": "supported",
+          "note": "To run any of the code samples in this document, you'll need a Google Account..."
+        }
+      }
+    },
+    {
+      "item": "Verified domain ownership in Google Search Console matching the app's domain.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa"
+        ],
+        "probe_ids": [],
+        "note": "Domain verification is part of the verification prerequisites.",
+        "verification": {
+          "verdict": "supported",
+          "note": "مالکیت دامنه‌های مجاز پروژه‌تان را در کنسول جستجوی Google به‌تأیید برسانید."
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "title": "Create a Google Cloud Project",
+      "detail": "Open the Google Cloud Console, create a new project, and enable the necessary workspace APIs.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human login to Google Cloud Console.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/web-server"
+        ],
+        "probe_ids": [],
+        "note": "Step 1 of the web server guide.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Open the API Library in the Google API Console. If prompted, select a project, or create a new one... Select the API you want to enable, then click the Enable button."
+        }
+      }
+    },
+    {
+      "order": 2,
+      "title": "Configure OAuth Consent Screen",
+      "detail": "Navigate to APIs & Services > OAuth consent screen, select user type (External/Internal), and fill out app name, support email, homepage, and privacy policy URLs.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires administrative configuration in the console.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa"
+        ],
+        "probe_ids": [],
+        "note": "Consent screen setup guidelines.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Source 2 mentions configuring brand information and user types in Cloud Console, but does not specify the exact navigation path 'APIs & Services > OAuth consent screen'."
+        }
+      }
+    },
+    {
+      "order": 3,
+      "title": "Select Scopes",
+      "detail": "Add the required non-sensitive, sensitive, or restricted scopes your agent needs for accessing Google Workspace resources.",
+      "owner": "developer",
+      "agent_can_automate": true,
+      "notes": "Agent can recommend minimal scopes based on agent features.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa"
+        ],
+        "probe_ids": [],
+        "note": "Scope configuration step.",
+        "verification": {
+          "verdict": "supported",
+          "note": "از دکمه افزودن یا برداشتن دامنه‌ها برای اعلام همه دامنه‌های درخواست‌شده توسط برنامه‌تان استفاده کنید... گستره‌های اضافه‌شده به‌عنوان غیرحساس، حساس، یا محدودشده طبقه‌بندی می‌شوند."
+        }
+      }
+    },
+    {
+      "order": 4,
+      "title": "Create OAuth Credentials",
+      "detail": "Go to APIs & Services > Credentials, create an OAuth client ID for a Web Application, and record your client ID and client secret.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Generates credentials required for implementation.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/web-server"
+        ],
+        "probe_ids": [],
+        "note": "Credentials creation instructions.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Source 1 explains going to the Clients page and creating a Web application client ID, but does not state the exact navigation path 'APIs & Services > Credentials'."
+        }
+      }
+    },
+    {
+      "order": 5,
+      "title": "Configure Redirect URIs",
+      "detail": "Add exact authorized redirect URIs (e.g., http://localhost:8080 for local development) to your OAuth client settings.",
+      "owner": "developer",
+      "agent_can_automate": true,
+      "notes": "Agent can supply exact redirect URI strings to be configured.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/web-server"
+        ],
+        "probe_ids": [],
+        "note": "Exact redirect URIs must be provided.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Applications that use languages and frameworks like PHP... must specify authorized redirect URIs. For testing, you can specify URIs that refer to the local machine, such as http://localhost:8080."
+        }
+      }
+    },
+    {
+      "order": 6,
+      "title": "Implement OAuth Flow and PKCE",
+      "detail": "Write code to handle redirection to the authorization endpoint, handle the callback code exchange at the token endpoint, and store tokens securely.",
+      "owner": "agent",
+      "agent_can_automate": true,
+      "notes": "Fully automatable coding task.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/web-server"
+        ],
+        "probe_ids": [
+          "p1",
+          "p6"
+        ],
+        "note": "Endpoints and PKCE support verified.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Step 2: Redirect to Google's OAuth 2.0 server... Step 5: Exchange authorization code for refresh and access tokens..."
+        }
+      }
+    },
+    {
+      "order": 7,
+      "title": "Submit for Verification (If Applicable)",
+      "detail": "If using sensitive or restricted scopes, submit domain ownership proof, privacy policy, and a demonstration YouTube video for Google verification.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human submission and video recording.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa",
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar"
+        ],
+        "probe_ids": [],
+        "note": "Verification workflow requirements.",
+        "verification": {
+          "verdict": "supported",
+          "note": "اگر برنامه‌تان برای دامنه‌های حساس یا محدودشده نیز به درستی‌سنجی نیاز دارد، انتقِل به مرکز درستی‌سنجی OAuth... ویدیویی آماده کنید..."
+        }
+      }
+    }
+  ],
+  "review_triggering_scopes": [
+    {
+      "scope": "Gmail scopes (e.g., mail.google.com, gmail.readonly)",
+      "why": "Grants access to private user email messages and metadata, categorized as sensitive or restricted.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar"
+        ],
+        "probe_ids": [],
+        "note": "Broad email access triggers restricted scope verification.",
+        "verification": {
+          "verdict": "supported",
+          "note": "على سبيل المثال، إذا كان التطبيق يستخدم واجهات برمجة تطبيقات Gmail فقط... لا تطلب النطاق الذي يوفّر إمكانية الوصول الكامل إلى بيانات البريد الإلكتروني للمستخدم."
+        }
+      }
+    },
+    {
+      "scope": "Google Drive scopes (e.g., auth/drive)",
+      "why": "Grants access to user files and documents, classified as restricted.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar"
+        ],
+        "probe_ids": [],
+        "note": "Drive file access requires restricted scope review.",
+        "verification": {
+          "verdict": "supported",
+          "note": "تتطلب هذه المتطلبات الإضافية للنطاقات المحدودة... (Implicitly covers restricted Google Drive scopes as detailed in documentation)."
+        }
+      }
+    }
+  ],
+  "technical": [
+    {
+      "fact": "Authorization endpoint is https://accounts.google.com/o/oauth2/v2/auth",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p1",
+          "p3"
+        ],
+        "note": "Confirmed live via OpenID configuration and probe tests.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "Token endpoint is https://oauth2.googleapis.com/token",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p1",
+          "p4"
+        ],
+        "note": "Confirmed live via OpenID configuration and token endpoint probe.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "PKCE (S256 and plain) is supported.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p1",
+          "p6"
+        ],
+        "note": "Advertised in OpenID discovery document metadata.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "Redirect URIs must match exactly; wildcards are not supported.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/web-server"
+        ],
+        "probe_ids": [],
+        "note": "Strict exact matching rule stated in official docs.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Source 1 states 'The value must exactly match one of the authorized redirect URIs', but does not explicitly state that wildcards are not supported."
+        }
+      }
+    },
+    {
+      "fact": "RFC 8414 authorization server metadata is published at https://accounts.google.com/.well-known/oauth-authorization-server.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2"
+        ],
+        "note": "Observed directly by probe p2 at 2026-11-03T13:38:46.633Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "The discovery metadata advertises no dynamic client registration endpoint: the OAuth app must be registered manually in the provider console.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p5"
+        ],
+        "note": "Observed directly by probe p5 at 2026-11-03T13:38:48.213Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "description": "Leaving unused sensitive or restricted scopes on the consent screen triggers unnecessary mandatory verification.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Community-reported pitfall regarding scope configuration. [auto-check: no retrievable source, downgraded to inferred]",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "No source cited for this claim, so there is nothing to check."
+        }
+      }
+    },
+    {
+      "description": "Submitting a demo video that fails to clearly show the browser address bar or lacks English consent flow explanations.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa"
+        ],
+        "probe_ids": [],
+        "note": "Explicitly warned in Google verification guidelines.",
+        "verification": {
+          "verdict": "supported",
+          "note": "فرایند اعطای OAuth را که کاربران تجربه خواهند کرد به زبان انگلیسی نشان دهید... نشان دهید که نوار نشانی مرورگر در صفحه کسب رضایت OAuth به‌درستی حاوی شناسه کارخواه OAuth برنامه‌تان است."
+        }
+      }
+    },
+    {
+      "description": "Exceeding the 100 new-user cap for unverified production apps requesting sensitive or restricted scopes.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://support.google.com/cloud/answer/13463817?hl=en"
+        ],
+        "probe_ids": [],
+        "note": "Google Cloud Console Help FAQ notes user caps on unverified production apps.",
+        "verification": {
+          "verdict": "supported",
+          "note": "To protect users and Google systems from abuse, unverified apps that are accessing restricted or sensitive scopes have a 100 new-user cap restriction."
+        }
+      }
+    }
+  ],
+  "escalation_path": [
+    {
+      "channel": "Google Cloud Console Help Center & Stack Overflow",
+      "url": null,
+      "when_to_use": "For troubleshooting integration errors, configuration problems, or verification delays.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa"
+        ],
+        "probe_ids": [],
+        "note": "Official support resources cited in documentation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "سرریز پشته زیر برچسب google-oauth سوال بپرسید... مدلاسیون و منابع دیگر."
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/web-server",
+      "title": "Using OAuth 2.0 for Web Server Applications | Authorization | Google for Developers",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:38:39.409Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar",
+      "title": "التحقّق من نطاق محظور | App verification to use Google Authorization APIs | Google for Developers",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:38:39.409Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://support.google.com/cloud/answer/13463817?hl=en",
+      "title": "Frequently Asked Questions - Google Cloud Platform Console Help",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:38:19.666Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa",
+      "title": "درستی‌سنجی حوزه حساس | App verification to use Google Authorization APIs | Google for Developers",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:38:39.409Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=fa",
+      "title": "درستی‌سنجی حوزه حساس | App verification to use Google Authorization APIs | Google for Developers",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:38:39.409Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=ar",
+      "title": "التحقّق من نطاق محظور | App verification to use Google Authorization APIs | Google for Developers",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:38:39.409Z",
+      "retrieval": "fetched"
+    }
+  ],
+  "probes": [
+    {
+      "id": "p1",
+      "kind": "openid_configuration",
+      "target_url": "https://accounts.google.com/.well-known/openid-configuration",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "OpenID Connect discovery document found (issuer: https://accounts.google.com).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://accounts.google.com/.well-known/openid-configuration",
+            "status": 200
+          }
+        ],
+        "issuer": "https://accounts.google.com",
+        "authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+        "token_endpoint": "https://oauth2.googleapis.com/token",
+        "code_challenge_methods_supported": [
+          "plain",
+          "S256"
+        ],
+        "grant_types_supported": [
+          "authorization_code",
+          "refresh_token",
+          "urn:ietf:params:oauth:grant-type:device_code",
+          "urn:ietf:params:oauth:grant-type:jwt-bearer"
+        ],
+        "response_types_supported": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "code id_token",
+          "token id_token",
+          "code token id_token",
+          "none"
+        ],
+        "token_endpoint_auth_methods_supported": [
+          "client_secret_post",
+          "client_secret_basic"
+        ],
+        "scopes_supported_count": 3
+      },
+      "timestamp": "2026-11-03T13:38:46.526Z"
+    },
+    {
+      "id": "p2",
+      "kind": "oauth_authorization_server_metadata",
+      "target_url": "https://accounts.google.com/.well-known/oauth-authorization-server",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "RFC 8414 authorization server metadata found (issuer: https://accounts.google.com).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://accounts.google.com/.well-known/oauth-authorization-server",
+            "status": 200
+          }
+        ],
+        "issuer": "https://accounts.google.com",
+        "authorization_endpoint": "https://accounts.google.com/o/oauth2/v2/auth",
+        "token_endpoint": "https://oauth2.googleapis.com/token",
+        "code_challenge_methods_supported": [
+          "plain",
+          "S256"
+        ],
+        "grant_types_supported": [
+          "authorization_code",
+          "refresh_token",
+          "urn:ietf:params:oauth:grant-type:device_code",
+          "urn:ietf:params:oauth:grant-type:jwt-bearer"
+        ],
+        "response_types_supported": [
+          "code",
+          "token",
+          "id_token",
+          "code token",
+          "code id_token",
+          "token id_token",
+          "code token id_token",
+          "none"
+        ],
+        "token_endpoint_auth_methods_supported": [
+          "client_secret_post",
+          "client_secret_basic"
+        ]
+      },
+      "timestamp": "2026-11-03T13:38:46.633Z"
+    },
+    {
+      "id": "p3",
+      "kind": "authorize_endpoint_reachability",
+      "target_url": "https://accounts.google.com/o/oauth2/v2/auth",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Authorization endpoint (from docs) responds to a request with a fake client_id (HTTP 200, redirected to https://accounts.google.com/signin/oauth/error); response mentions an OAuth/client error.",
+      "details": {
+        "final_url": "https://accounts.google.com/signin/oauth/error?authError=Cg9pbnZhbGlkX3JlcXVlc3QSKE1pc3NpbmcgcmVxdWlyZWQgcGFyYW1ldGVyOiByZWRpcmVjdF91cmkaN2h0dHBzOi8vZGV2ZWxvcGVycy5nb29nbGUuY29tL2lkZW50aXR5L3Byb3RvY29scy9vYXV0aDIgkAM&flowName=GeneralOAuthLite&client_id=oauth-guide-probe-nonexistent-client&as=S-1928302257:1793713125065583&aes=AVQXgOCuyeJphtBshuztDaUYa98R",
+        "redirects": [
+          "https://accounts.google.com/signin/oauth/error?authError=Cg9pbnZhbGlkX3JlcXVlc3QSKE1pc3NpbmcgcmVxdWlyZWQgcGFyYW1ldGVyOiByZWRpcmVjdF91cmkaN2h0dHBzOi8vZGV2ZWxvcGVycy5nb29nbGUuY29tL2lkZW50aXR5L3Byb3RvY29scy9vYXV0aDIgkAM&flowName=GeneralOAuthFlow&client_id=oauth-guide-probe-nonexistent-client&as=S-1928302257%3A1793713125065583&aes=AVQXgOCuyeJphtBshuztDaUYa98R",
+          "https://accounts.google.com/signin/oauth/error?authError=Cg9pbnZhbGlkX3JlcXVlc3QSKE1pc3NpbmcgcmVxdWlyZWQgcGFyYW1ldGVyOiByZWRpcmVjdF91cmkaN2h0dHBzOi8vZGV2ZWxvcGVycy5nb29nbGUuY29tL2lkZW50aXR5L3Byb3RvY29scy9vYXV0aDIgkAM&flowName=GeneralOAuthLite&client_id=oauth-guide-probe-nonexistent-client&as=S-1928302257:1793713125065583&aes=AVQXgOCuyeJphtBshuztDaUYa98R"
+        ],
+        "mentions_oauth_error": true
+      },
+      "timestamp": "2026-11-03T13:38:47.832Z"
+    },
+    {
+      "id": "p4",
+      "kind": "token_endpoint_reachability",
+      "target_url": "https://oauth2.googleapis.com/token",
+      "method": "POST",
+      "outcome": "positive",
+      "http_status": 401,
+      "summary": "Token endpoint (from docs) is live: an unauthenticated request with a fake code returned OAuth error \"invalid_client\" (HTTP 401).",
+      "details": {
+        "final_url": "https://oauth2.googleapis.com/token",
+        "oauth_error": "invalid_client"
+      },
+      "timestamp": "2026-11-03T13:38:48.213Z"
+    },
+    {
+      "id": "p5",
+      "kind": "dynamic_client_registration",
+      "target_url": "https://accounts.google.com/.well-known/openid-configuration",
+      "method": "none",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "Discovery metadata does not advertise a registration_endpoint, so dynamic client registration is likely unsupported.",
+      "details": {},
+      "timestamp": "2026-11-03T13:38:48.213Z"
+    },
+    {
+      "id": "p6",
+      "kind": "pkce_support",
+      "target_url": "https://accounts.google.com/.well-known/openid-configuration",
+      "method": "none",
+      "outcome": "positive",
+      "http_status": null,
+      "summary": "Metadata advertises code_challenge_methods_supported: plain, S256.",
+      "details": {
+        "code_challenge_methods_supported": [
+          "plain",
+          "S256"
+        ]
+      },
+      "timestamp": "2026-11-03T13:38:48.213Z"
+    },
+    {
+      "id": "p7",
+      "kind": "doc_page_exists",
+      "target_url": "https://developers.google.com/identity/protocols/oauth2/web-server",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200), redirected to https://developers.google.com/identity/protocols/oauth2/web-server?hl=ko — appears to require sign-in.",
+      "details": {
+        "final_url": "https://developers.google.com/identity/protocols/oauth2/web-server?hl=ko",
+        "redirects": [
+          "https://developers.google.com/identity/protocols/oauth2/web-server?hl=ko"
+        ]
+      },
+      "timestamp": "2026-11-03T13:38:49.591Z"
+    },
+    {
+      "id": "p8",
+      "kind": "doc_page_exists",
+      "target_url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200), redirected to https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=zh-cn — appears to require sign-in.",
+      "details": {
+        "final_url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=zh-cn",
+        "redirects": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/sensitive-scope-verification?hl=zh-cn"
+        ]
+      },
+      "timestamp": "2026-11-03T13:38:50.956Z"
+    },
+    {
+      "id": "p9",
+      "kind": "doc_page_exists",
+      "target_url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200), redirected to https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=hi — appears to require sign-in.",
+      "details": {
+        "final_url": "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=hi",
+        "redirects": [
+          "https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification?hl=hi"
+        ]
+      },
+      "timestamp": "2026-11-03T13:38:52.419Z"
+    },
+    {
+      "id": "p10",
+      "kind": "doc_page_exists",
+      "target_url": "https://workspace.google.com",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://workspace.google.com/",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:39:14.774Z"
+    },
+    {
+      "id": "p11",
+      "kind": "doc_page_exists",
+      "target_url": "https://console.cloud.google.com",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200) — redirects to sign-in, as expected for a developer console.",
+      "details": {
+        "final_url": "https://accounts.google.com/v3/signin/identifier?continue=https://console.cloud.google.com/&followup=https://console.cloud.google.com/&osid=1&passive=1209600&service=cloudconsole&flowName=WebLiteSignIn&flowEntry=ServiceLogin&dsh=S-47719610:1793713153419592",
+        "redirects": [
+          "https://accounts.google.com/ServiceLogin?service=cloudconsole&passive=1209600&osid=1&continue=https://console.cloud.google.com/&followup=https://console.cloud.google.com/",
+          "https://accounts.google.com/v3/signin/identifier?continue=https://console.cloud.google.com/&followup=https://console.cloud.google.com/&osid=1&passive=1209600&service=cloudconsole&flowName=WebLiteSignIn&flowEntry=ServiceLogin&dsh=S-47719610:1793713153419592"
+        ],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:39:15.406Z"
+    }
+  ],
+  "limitations": [
+    "No accounts were created, no forms submitted, no OAuth apps registered, and no credentials were used. Probes are unauthenticated GET requests against public discovery documents, endpoints and documentation pages, plus one unauthenticated POST to the token endpoint with a fake authorization code and a nonexistent client_id (to confirm it answers with an OAuth error).",
+    "Review timelines are only marked as sourced when an official provider page states them. Community-reported timelines are labeled as such.",
+    "Provider policies change; check the linked sources before relying on a requirement."
+  ],
+  "verification_summary": {
+    "claims_total": 27,
+    "by_status": {
+      "verified_by_test": 5,
+      "sourced_from_docs": 19,
+      "inferred": 3,
+      "unknown": 0
+    },
+    "downgraded": 1,
+    "unreachable_sources": 0
+  }
+}

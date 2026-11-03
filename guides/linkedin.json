@@ -1,0 +1,680 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_version": "0.1.0",
+  "generated_at": "2026-11-03T13:37:11.997Z",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "query": "LinkedIn",
+  "status": "complete",
+  "app": {
+    "name": "LinkedIn",
+    "slug": "linkedin",
+    "website": "https://www.linkedin.com",
+    "developer_portal_url": "https://www.linkedin.com/developers/",
+    "oauth_docs_url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+  },
+  "verdict": {
+    "tier": "self_serve_with_review",
+    "summary": "LinkedIn provides instant self-serve app registration for basic products like Sign In with LinkedIn and standard scopes, but specialized partner APIs and restricted products require formal review and approval.",
+    "evidence": {
+      "evidence_status": "sourced_from_docs",
+      "source_urls": [
+        "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+        "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access"
+      ],
+      "probe_ids": [],
+      "note": "Standard consumer auth is self-serve, but specialized developer products require review.",
+      "verification": {
+        "verdict": "supported",
+        "note": "Most permissions and partner programs require explicit approval from LinkedIn. Open Permissions are the only permissions that are available to all developers without special approval."
+      }
+    }
+  },
+  "time": {
+    "effort_minutes": {
+      "min": 30,
+      "max": 90,
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Estimated developer effort to register an app, configure redirect URIs, and implement the OAuth code flow."
+      }
+    },
+    "wait_days": {
+      "min": null,
+      "max": null,
+      "published_by_provider": false,
+      "community_reported": true,
+      "applies_to": "Specialized partner programs and restricted API products/scopes.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "LinkedIn does not publish an official SLA for review timelines.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source mentions applying for new Products under the Products tab, but does not specify waiting times in days.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    "confidence": "medium"
+  },
+  "blockers": [
+    {
+      "type": "partner_application",
+      "description": "Restricted products and specialized scopes require submitting a formal application review through the Developer Portal.",
+      "applies_when": "Using specialized partner programs like Marketing Developer Platform, Talent Solutions, or Sales Solutions.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens"
+        ],
+        "probe_ids": [],
+        "note": "Formal application review required for restricted products.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You can apply for new Products under the Products tab. If approved, your app will have access to new scopes."
+        }
+      }
+    },
+    {
+      "type": "other",
+      "description": "Apps must be linked to a verified LinkedIn Company Page (organization page).",
+      "applies_when": "Creating any application in the LinkedIn Developer Portal.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Developer portal requires a verified organization page during app creation.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "The page mentions configuring an application and credentials, but does not state that apps must be linked to a verified LinkedIn Company Page.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    }
+  ],
+  "prerequisites": [
+    {
+      "item": "A verified LinkedIn Company Page (organization page)",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Required to associate with a newly created developer app.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "The prerequisites section lists a LinkedIn Developer application and prior authorization access, but mentions no company page requirement.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "item": "A valid Privacy Policy URL",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Required when filling out app profile details.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "The page does not mention a valid Privacy Policy URL as a prerequisite.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "title": "Register App in Developer Portal",
+      "detail": "Navigate to the LinkedIn Developer Portal, click Create app, fill out app name, link your verified organization page, and provide logo and privacy policy URLs.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human developer login and organization verification.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "App creation steps documented in the authorization code flow guide.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Mentions selecting application in Developer Portal and Auth tab, but steps like clicking create app, linking organization page, and privacy policy URLs are missing."
+        }
+      }
+    },
+    {
+      "order": 2,
+      "title": "Configure Products & Scopes",
+      "detail": "Go to the Products tab in the developer portal to enable desired products like Sign In with LinkedIn using OpenID Connect or Share on LinkedIn.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Enabling products provisions the required scopes to your app.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+          "https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2"
+        ],
+        "probe_ids": [],
+        "note": "Products tab configuration enables relevant scopes.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You can apply for new Products under the Products tab."
+        }
+      }
+    },
+    {
+      "order": 3,
+      "title": "Configure Redirect URIs and Credentials",
+      "detail": "Navigate to the Auth tab to retrieve your Client ID and Client Secret, and register your absolute HTTPS redirect callback URLs.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Must be absolute HTTPS URIs without URL fragments.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Auth tab stores client credentials and redirect URIs.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Click the Auth tab to view your application credentials... Add the redirect (callback) URL via HTTPS to your server."
+        }
+      }
+    },
+    {
+      "order": 4,
+      "title": "Implement Authorization Code Flow",
+      "detail": "Implement the 3-legged OAuth code flow in your application, including state parameters and URL-encoded space-delimited scopes.",
+      "owner": "agent",
+      "agent_can_automate": true,
+      "notes": "Can be fully written and tested by an agent using the endpoints.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [
+          "p1",
+          "p3",
+          "p4"
+        ],
+        "note": "Endpoints are live and standard OAuth code flow is documented.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Follow the steps given below to implement the 3-legged OAuth... scope=liteprofile%20emailaddress%20w_member_social... state=foobar"
+        }
+      }
+    },
+    {
+      "order": 5,
+      "title": "Test Authentication",
+      "detail": "Test authentication using your own account or the LinkedIn Developer Portal's Token Generator tool.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human browser sign-in for consent screen verification.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Token generator tool provided in the developer portal.",
+        "verification": {
+          "verdict": "supported",
+          "note": "The LinkedIn Developer Portal has a token generator for manually creating tokens... If you are using Postman to test this flow..."
+        }
+      }
+    }
+  ],
+  "review_triggering_scopes": [],
+  "technical": [
+    {
+      "fact": "Authorization endpoint is https://www.linkedin.com/oauth/v2/authorization",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [
+          "p1",
+          "p3"
+        ],
+        "note": "Confirmed via OIDC discovery document and endpoint reachability probe.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "Token endpoint is https://www.linkedin.com/oauth/v2/accessToken",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [
+          "p1",
+          "p4"
+        ],
+        "note": "Confirmed via OIDC discovery document and token endpoint probe.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "Access tokens have a 60-day lifetime (5184000 seconds)",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Documented in authorization code flow guide.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Currently, all access tokens are issued with a 60-day lifespan."
+        }
+      }
+    },
+    {
+      "fact": "Authorization codes expire after 30 minutes",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Documented in authorization code flow guide.",
+        "verification": {
+          "verdict": "supported",
+          "note": "For security reasons, the authorization code has a 30-minute lifespan and must be used immediately."
+        }
+      }
+    },
+    {
+      "fact": "No RFC 8414 authorization server metadata was found at the standard location(s) checked.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2"
+        ],
+        "note": "Observed directly by probe p2 at 2026-11-03T13:37:01.824Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "The discovery metadata advertises no dynamic client registration endpoint: the OAuth app must be registered manually in the provider console.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p5"
+        ],
+        "note": "Observed directly by probe p5 at 2026-11-03T13:37:02.457Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "The discovery metadata does not list PKCE code challenge methods (PKCE may still be supported; check the docs).",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p6"
+        ],
+        "note": "Observed directly by probe p6 at 2026-11-03T13:37:02.457Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "description": "Failing to URL-encode and space-delimit scopes (e.g., using commas instead of %20 or spaces).",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Explicitly warned against in documentation.",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Source specifies scope parameter is a URL-encoded, space-delimited list (e.g., scope=liteprofile%20emailaddress%20w_member_social), but does not explicitly warn against commas."
+        }
+      }
+    },
+    {
+      "description": "Omitting the state parameter, leaving the application vulnerable to CSRF attacks.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Explicitly warned against in documentation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Before you use the authorization code, your application should ensure that the value returned in the state parameter matches... If not... likely the victim of a CSRF attack"
+        }
+      }
+    },
+    {
+      "description": "Passing the client_secret in frontend code or URL query parameters instead of secure backend POST bodies.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [],
+        "note": "Explicitly warned against in documentation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Do not pass it in the URL when making API calls, or URI query-string parameters... client_secret passed in POST body."
+        }
+      }
+    }
+  ],
+  "escalation_path": [
+    {
+      "channel": "LinkedIn Developer Support Ticket Form",
+      "url": "https://www.linkedin.com/help/linkedin/ask/dsapi",
+      "when_to_use": "For API or developer issues and support requests.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow"
+        ],
+        "probe_ids": [
+          "p12"
+        ],
+        "note": "Official developer support form URL provided in docs. [link check: URL loads]",
+        "verification": {
+          "verdict": "partially_supported",
+          "note": "Mentions submitting a Developer Support request to the LinkedIn support team, but does not provide the exact URL https://www.linkedin.com/help/linkedin/ask/dsapi."
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2",
+      "title": "Sign In with LinkedIn using OpenID Connect - LinkedIn | Microsoft Learn",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:36:51.575Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+      "title": "LinkedIn 3-Legged OAuth Flow - LinkedIn | Microsoft Learn",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:36:51.575Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/programmatic-refresh-tokens",
+      "title": "Refresh Tokens with OAuth 2.0 - LinkedIn | Microsoft Learn",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:36:51.575Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/token-introspection",
+      "title": "Token Introspection - LinkedIn | Microsoft Learn",
+      "source_type": "other",
+      "retrieved_at": "2026-11-03T13:36:51.575Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authentication",
+      "title": "Authenticating with OAuth 2.0 Overview - LinkedIn | Microsoft Learn",
+      "source_type": "other",
+      "retrieved_at": "2026-11-03T13:36:51.575Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+      "title": "Getting Access to LinkedIn APIs - LinkedIn | Microsoft Learn",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:36:48.386Z",
+      "retrieval": "search_result"
+    }
+  ],
+  "probes": [
+    {
+      "id": "p1",
+      "kind": "openid_configuration",
+      "target_url": "https://www.linkedin.com/oauth/.well-known/openid-configuration",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "OpenID Connect discovery document found (issuer: https://www.linkedin.com/oauth).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://www.linkedin.com/oauth/.well-known/openid-configuration",
+            "status": 200
+          }
+        ],
+        "issuer": "https://www.linkedin.com/oauth",
+        "authorization_endpoint": "https://www.linkedin.com/oauth/v2/authorization",
+        "token_endpoint": "https://www.linkedin.com/oauth/v2/accessToken",
+        "response_types_supported": [
+          "code"
+        ],
+        "scopes_supported_count": 3
+      },
+      "timestamp": "2026-11-03T13:37:00.106Z"
+    },
+    {
+      "id": "p2",
+      "kind": "oauth_authorization_server_metadata",
+      "target_url": "https://www.linkedin.com/oauth/.well-known/oauth-authorization-server",
+      "method": "GET",
+      "outcome": "negative",
+      "http_status": 404,
+      "summary": "No RFC 8414 authorization server metadata at 3 candidate location(s).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://www.linkedin.com/oauth/.well-known/oauth-authorization-server",
+            "status": 404
+          },
+          {
+            "url": "https://www.linkedin.com/.well-known/oauth-authorization-server",
+            "status": 404
+          },
+          {
+            "url": "https://linkedin.com/.well-known/oauth-authorization-server",
+            "status": 200
+          }
+        ]
+      },
+      "timestamp": "2026-11-03T13:37:01.824Z"
+    },
+    {
+      "id": "p3",
+      "kind": "authorize_endpoint_reachability",
+      "target_url": "https://www.linkedin.com/oauth/v2/authorization",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Authorization endpoint (from docs) responds to a request with a fake client_id (HTTP 200); response mentions an OAuth/client error.",
+      "details": {
+        "final_url": "https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=oauth-guide-probe-nonexistent-client",
+        "redirects": [],
+        "mentions_oauth_error": true
+      },
+      "timestamp": "2026-11-03T13:37:02.123Z"
+    },
+    {
+      "id": "p4",
+      "kind": "token_endpoint_reachability",
+      "target_url": "https://www.linkedin.com/oauth/v2/accessToken",
+      "method": "POST",
+      "outcome": "positive",
+      "http_status": 400,
+      "summary": "Token endpoint (from docs) is live: an unauthenticated request with a fake code returned OAuth error \"invalid_request\" (HTTP 400).",
+      "details": {
+        "final_url": "https://www.linkedin.com/oauth/v2/accessToken",
+        "oauth_error": "invalid_request"
+      },
+      "timestamp": "2026-11-03T13:37:02.457Z"
+    },
+    {
+      "id": "p5",
+      "kind": "dynamic_client_registration",
+      "target_url": "https://www.linkedin.com/oauth/.well-known/openid-configuration",
+      "method": "none",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "Discovery metadata does not advertise a registration_endpoint, so dynamic client registration is likely unsupported.",
+      "details": {},
+      "timestamp": "2026-11-03T13:37:02.457Z"
+    },
+    {
+      "id": "p6",
+      "kind": "pkce_support",
+      "target_url": "https://www.linkedin.com/oauth/.well-known/openid-configuration",
+      "method": "none",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "Metadata does not list code_challenge_methods_supported (PKCE may still be supported; check docs).",
+      "details": {},
+      "timestamp": "2026-11-03T13:37:02.457Z"
+    },
+    {
+      "id": "p7",
+      "kind": "doc_page_exists",
+      "target_url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/authorization-code-flow",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:37:02.548Z"
+    },
+    {
+      "id": "p8",
+      "kind": "doc_page_exists",
+      "target_url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://learn.microsoft.com/en-us/linkedin/shared/authentication/getting-access",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:37:02.916Z"
+    },
+    {
+      "id": "p9",
+      "kind": "doc_page_exists",
+      "target_url": "https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin-v2",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:37:02.958Z"
+    },
+    {
+      "id": "p10",
+      "kind": "doc_page_exists",
+      "target_url": "https://www.linkedin.com",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://www.linkedin.com/",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:37:12.499Z"
+    },
+    {
+      "id": "p11",
+      "kind": "doc_page_exists",
+      "target_url": "https://www.linkedin.com/developers/",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://developer.linkedin.com/",
+        "redirects": [
+          "https://www.developers.linkedin.com/",
+          "https://developer.linkedin.com/"
+        ],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:37:13.769Z"
+    },
+    {
+      "id": "p12",
+      "kind": "doc_page_exists",
+      "target_url": "https://www.linkedin.com/help/linkedin/ask/dsapi",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://www.linkedin.com/help/linkedin/ask/dsapi",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:37:14.139Z"
+    }
+  ],
+  "limitations": [
+    "No accounts were created, no forms submitted, no OAuth apps registered, and no credentials were used. Probes are unauthenticated GET requests against public discovery documents, endpoints and documentation pages, plus one unauthenticated POST to the token endpoint with a fake authorization code and a nonexistent client_id (to confirm it answers with an OAuth error).",
+    "Review timelines are only marked as sourced when an official provider page states them. Community-reported timelines are labeled as such.",
+    "Provider policies change; check the linked sources before relying on a requirement."
+  ],
+  "verification_summary": {
+    "claims_total": 23,
+    "by_status": {
+      "verified_by_test": 5,
+      "sourced_from_docs": 13,
+      "inferred": 5,
+      "unknown": 0
+    },
+    "downgraded": 4,
+    "unreachable_sources": 0
+  }
+}

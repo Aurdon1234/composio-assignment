@@ -99,9 +99,14 @@ export async function runPipeline(
     const probes = await stage("probe", (p) => probe(resolved, res.endpoints, p), (r) =>
       `${r.length} probes, ${r.filter((x) => x.outcome === "positive").length} positive`,
     );
-    // Nothing readable found at all: say so plainly instead of asking a model to guess a setup flow.
-    const fetchedAny = [...res.retrieved.values()].some((r) => r.retrieval === "fetched");
-    const draft = fetchedAny
+    // No provider documentation found at all (nothing fetched AND no provider-domain search hits):
+    // say so plainly instead of asking a model to guess a setup flow. Otherwise let extraction decide;
+    // the verifier re-reads every cited page, so snippet-based claims still get checked.
+    const providerToken = resolved.slug.split("-")[0];
+    const foundDocs = [...res.retrieved.values()].some(
+      (r) => r.retrieval === "fetched" || (resolved.found && new URL(r.url).hostname.includes(providerToken)),
+    );
+    const draft = foundDocs
       ? await stage("extract", (p) => extract({ appName: resolved.name, notes: res.notes, retrieved: res.retrieved, probes, onProgress: p }), (d) =>
           `${d.steps.length} steps, ${d.blockers.length} blockers, tier ${d.verdict.tier ?? "n/a"}`,
         )
