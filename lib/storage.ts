@@ -12,8 +12,18 @@ import { Guide } from "./schema";
  * Reads check the library first, then Blob.
  */
 const DIR = path.join(process.cwd(), "guides");
-const useBlob = () => !!process.env.BLOB_READ_WRITE_TOKEN;
-const BLOB_ACCESS = (process.env.BLOB_ACCESS === "private" ? "private" : "public") as "public" | "private";
+// Classic stores expose BLOB_READ_WRITE_TOKEN; newer ones expose BLOB_STORE_ID and the SDK
+// authenticates with Vercel's OIDC token automatically.
+export const useBlob = () => !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID);
+let BLOB_ACCESS: "public" | "private" = process.env.BLOB_ACCESS === "private" ? "private" : "public";
+const flipAccess = (e: unknown) => {
+  // A store only accepts its own access mode; switch once if the error says so.
+  if (/access|private|public/i.test(String(e))) {
+    BLOB_ACCESS = BLOB_ACCESS === "public" ? "private" : "public";
+    return true;
+  }
+  return false;
+};
 const blobPath = (slug: string) => `guides/${slug}.json`;
 const validSlug = (slug: string) => /^[a-z0-9-]{1,80}$/.test(slug);
 
@@ -23,13 +33,19 @@ export type StoredGuide = { guide: Guide; origin: GuideOrigin };
 export async function saveGuide(g: Guide, opts: { target?: "auto" | "fs" } = {}): Promise<string> {
   const body = JSON.stringify(g, null, 2) + "\n";
   if (useBlob() && opts.target !== "fs") {
-    const r = await put(blobPath(g.app.slug), body, {
-      access: BLOB_ACCESS,
-      addRandomSuffix: false,
-      allowOverwrite: true,
-      contentType: "application/json",
-    });
-    return r.url;
+    const doPut = () =>
+      put(blobPath(g.app.slug), body, {
+        access: BLOB_ACCESS,
+        addRandomSuffix: false,
+        allowOverwrite: true,
+        contentType: "application/json",
+      });
+    try {
+      return (await doPut()).url;
+    } catch (e) {
+      if (!flipAccess(e)) throw e;
+      return (await doPut()).url;
+    }
   }
   try {
     await fs.mkdir(DIR, { recursive: true });
@@ -69,14 +85,18 @@ async function readLibrary(slug: string): Promise<Guide | null> {
 
 async function readBlob(slug: string): Promise<Guide | null> {
   if (!useBlob()) return null;
-  try {
-    const r = await get(blobPath(slug), { access: BLOB_ACCESS, useCache: false });
-    if (!r || r.statusCode !== 200) return null;
-    const raw = await new Response(r.stream).text();
-    return Guide.parse(JSON.parse(raw));
-  } catch {
-    return null;
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const r = await get(blobPath(slug), { access: BLOB_ACCESS, useCache: false });
+      if (!r || r.statusCode !== 200) return null;
+      const raw = await new Response(r.stream).text();
+      return Guide.parse(JSON.parse(raw));
+    } catch (e) {
+      if (attempt === 0 && flipAccess(e)) continue;
+      return null;
+    }
   }
+  return null;
 }
 
 export async function getGuide(slug: string): Promise<StoredGuide | null> {
