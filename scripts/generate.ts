@@ -21,7 +21,7 @@ async function main() {
         if (e.type === "stage") console.log(`[${e.stage}] ${e.status}${e.message ? `: ${e.message}` : ""}`);
         else if (e.type === "progress") console.log(`   ${e.message}`);
         else if (e.type === "error") console.error(`[error${e.stage ? ` in ${e.stage}` : ""}] ${e.message}`);
-      });
+      }, { saveTarget: "fs" });
       console.log(`\nSaved guides/${g.app.slug}.json in ${Math.round((Date.now() - t0) / 1000)}s`);
       console.log(`tier=${g.verdict.tier} status=${g.status}`, g.verification_summary);
       for (const c of listClaims(g)) {

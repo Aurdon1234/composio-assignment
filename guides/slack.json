@@ -1,0 +1,692 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_version": "0.1.0",
+  "generated_at": "2026-11-03T13:32:22.755Z",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "query": "Slack",
+  "status": "complete",
+  "app": {
+    "name": "Slack",
+    "slug": "slack",
+    "website": "https://slack.com",
+    "developer_portal_url": "https://api.slack.com/apps",
+    "oauth_docs_url": "https://docs.slack.dev/authentication/installing-with-oauth/"
+  },
+  "verdict": {
+    "tier": "self_serve_with_review",
+    "summary": "Slack allows instant self-serve creation and testing of apps across multiple workspaces via public distribution links without an upfront review. However, full publication on the Slack Marketplace requires submitting your app for a manual review.",
+    "evidence": {
+      "evidence_status": "sourced_from_docs",
+      "source_urls": [
+        "https://docs.slack.dev/authentication/installing-with-oauth/",
+        "https://docs.slack.dev/tools/java-slack-sdk/guides/app-distribution/",
+        "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+      ],
+      "probe_ids": [],
+      "note": "The docs state apps can be created and distributed publicly via links instantly, but Marketplace listing requires review.",
+      "verification": {
+        "verdict": "supported",
+        "note": "OAuth allows a user in any Slack workspace to install your app."
+      }
+    }
+  },
+  "time": {
+    "effort_minutes": {
+      "min": 30,
+      "max": 90,
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Standard setup time for configuring an app, setting scopes, and wiring up the OAuth redirect code."
+      }
+    },
+    "wait_days": {
+      "min": null,
+      "max": null,
+      "published_by_provider": false,
+      "community_reported": true,
+      "applies_to": "Only applies if you submit the app to the Slack Marketplace directory.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Slack does not publish a formal review SLA timeline in their documentation. [auto-check: no retrievable source, downgraded to inferred]",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "No source cited for this claim, so there is nothing to check."
+        }
+      }
+    },
+    "confidence": "medium"
+  },
+  "blockers": [
+    {
+      "type": "privacy_policy",
+      "description": "A valid Privacy Policy URL and support contact must be provided for public distribution or Marketplace review.",
+      "applies_when": "When distributing publicly or submitting to the Slack Marketplace.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+        ],
+        "probe_ids": [],
+        "note": "Marketplace requirements specify privacy policy and valid support details.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 3 does not mention a Privacy Policy URL requirement.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "type": "demo_video",
+      "description": "Providing test instructions, test credentials, or a demo video for the review team is required.",
+      "applies_when": "When submitting your app to the Slack Marketplace.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide"
+        ],
+        "probe_ids": [],
+        "note": "Marketplace review guidelines require testing instructions or a demo video.",
+        "verification": {
+          "verdict": "supported",
+          "note": "A short video demo is required for new submissions and for updates that add functionality or scopes."
+        }
+      }
+    }
+  ],
+  "prerequisites": [
+    {
+      "item": "A Slack user account with permissions to create apps in a workspace.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://github.com/slackapi/slack-skills-plugin/blob/main/skills/create-slack-app/SKILL.md"
+        ],
+        "probe_ids": [],
+        "note": "Notes specify needing a standard user account and workspace rights.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Needs a Slack Developer Program account, which is free to join."
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "title": "Create the Slack App",
+      "detail": "Go to the Slack API Portal (https://api.slack.com/apps), click 'Create New App', choose 'From scratch' or a manifest, name the app, and select your dev workspace.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human developer console login.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "App creation steps are documented in Slack's OAuth installation guide.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 1 does not mention navigating to https://api.slack.com/apps to create a new app.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "order": 2,
+      "title": "Configure Scopes",
+      "detail": "Navigate to Features > OAuth & Permissions, and add required Bot Token Scopes (e.g. chat:write) and/or User Token Scopes.",
+      "owner": "developer",
+      "agent_can_automate": true,
+      "notes": "Can be defined via an app manifest file that an agent writes.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "Scope configurations are managed under OAuth & Permissions.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Configure a Redirect URL in the App Management page under OAuth & Permissions"
+        }
+      }
+    },
+    {
+      "order": 3,
+      "title": "Configure Redirect URIs",
+      "detail": "Under Redirect URLs in the OAuth & Permissions page, add your application's HTTPS callback URI and save changes.",
+      "owner": "developer",
+      "agent_can_automate": true,
+      "notes": "Developer must specify exact URIs matching application code.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "Redirect URIs must be explicitly configured.",
+        "verification": {
+          "verdict": "supported",
+          "note": "The redirect_uri must use HTTPS. Alternatively, you can configure a Redirect URL in the App Management page under OAuth & Permissions"
+        }
+      }
+    },
+    {
+      "order": 4,
+      "title": "Retrieve App Credentials",
+      "detail": "Navigate to Settings > Basic Information to copy your Client ID and Client Secret.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires developer portal access.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/tools/java-slack-sdk/guides/app-distribution/"
+        ],
+        "probe_ids": [],
+        "note": "Credentials are found under Basic Information.",
+        "verification": {
+          "verdict": "supported",
+          "note": "(Find at Settings > Basic Information > App Credentials)"
+        }
+      }
+    },
+    {
+      "order": 5,
+      "title": "Activate Public Distribution",
+      "detail": "Go to Settings > Manage Distribution and click 'Activate Public Distribution' to allow installations outside your dev workspace.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Enables multi-workspace installation URLs.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/tools/java-slack-sdk/guides/app-distribution/"
+        ],
+        "probe_ids": [],
+        "note": "Public distribution setup requires toggling settings in the console.",
+        "verification": {
+          "verdict": "supported",
+          "note": "go to Settings > Manage Distribution on the left pane, and follow the instructions there."
+        }
+      }
+    },
+    {
+      "order": 6,
+      "title": "Implement the OAuth Code Flow",
+      "detail": "Implement the authorization redirect to https://slack.com/oauth/v2/authorize and the token exchange code handler against https://slack.com/api/oauth.v2.access.",
+      "owner": "agent",
+      "agent_can_automate": true,
+      "notes": "Standard server-side implementation work.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "Endpoints and parameters are specified in the official docs.",
+        "verification": {
+          "verdict": "supported",
+          "note": "To request scopes, redirect Slack users to https://slack.com/oauth/v2/authorize ... send it to the oauth.v2.access API endpoint"
+        }
+      }
+    }
+  ],
+  "review_triggering_scopes": [
+    {
+      "scope": "channels:history",
+      "why": "Grants access to read public channel history, triggering higher scrutiny during Marketplace review.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "History and sensitive message scopes undergo higher security scrutiny.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 1 mentions channels:history in examples of requesting scopes, but does not state it triggers Marketplace review.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "scope": "users:read.email",
+      "why": "Grants access to view user email addresses, triggering data privacy scrutiny.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "User data scopes trigger extra scrutiny.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 1 does not mention users:read.email or its scrutiny.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    }
+  ],
+  "technical": [
+    {
+      "fact": "Authorization endpoint is https://slack.com/oauth/v2/authorize",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [
+          "p3"
+        ],
+        "note": "Confirmed by docs and verified via probe p3.",
+        "verification": {
+          "verdict": "supported",
+          "note": "redirect Slack users to https://slack.com/oauth/v2/authorize"
+        }
+      }
+    },
+    {
+      "fact": "Token exchange endpoint is https://slack.com/api/oauth.v2.access",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [
+          "p4"
+        ],
+        "note": "Confirmed by docs and verified via probe p4.",
+        "verification": {
+          "verdict": "supported",
+          "note": "sends it to the oauth.v2.access API endpoint to exchange that code for an access token."
+        }
+      }
+    },
+    {
+      "fact": "Temporary authorization code expires after 10 minutes.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "Explicitly stated in Slack's OAuth docs.",
+        "verification": {
+          "verdict": "supported",
+          "note": "That's your temporary authorization code, which expires after ten minutes."
+        }
+      }
+    },
+    {
+      "fact": "An OpenID Connect discovery document is published at https://slack.com/.well-known/openid-configuration.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p1"
+        ],
+        "note": "Observed directly by probe p1 at 2026-11-03T13:31:58.988Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "No RFC 8414 authorization server metadata was found at the standard location(s) checked.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2"
+        ],
+        "note": "Observed directly by probe p2 at 2026-11-03T13:32:01.048Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "The discovery metadata advertises no dynamic client registration endpoint: the OAuth app must be registered manually in the provider console.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p5"
+        ],
+        "note": "Observed directly by probe p5 at 2026-11-03T13:32:01.551Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "The discovery metadata does not list PKCE code challenge methods (PKCE may still be supported; check the docs).",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p6"
+        ],
+        "note": "Observed directly by probe p6 at 2026-11-03T13:32:01.552Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "description": "Combining Sign in with Slack (SIWS) OpenID user scopes with non-SIWS scopes in a single authorization URL redirect causes an error.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "Docs state SIWS and standard scopes must be requested in separate flows.",
+        "verification": {
+          "verdict": "supported",
+          "note": "A scope conflict occurs when attempting to combine Sign in with Slack (SIWS) user scopes with non-Sign in with Slack scopes"
+        }
+      }
+    },
+    {
+      "description": "Failing to explicitly pass the exact redirect_uri parameter in both the authorize and token exchange steps causes a bad_redirect_uri error when multiple URIs are configured.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "Redirect URI matching pitfall documented in the OAuth guide.",
+        "verification": {
+          "verdict": "supported",
+          "note": "When there are multiple Redirect URL values configured, the redirect_url parameter must be sent in both the Authorize and Access steps... otherwise, you will encounter a bad_redirect_uri error"
+        }
+      }
+    },
+    {
+      "description": "Reinstalling an app with a subset of previously granted scopes does not remove the old scopes; permissions are strictly additive unless the token is fully revoked.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev/authentication/installing-with-oauth/"
+        ],
+        "probe_ids": [],
+        "note": "Additive scope behaviors are documented in the installation guide.",
+        "verification": {
+          "verdict": "supported",
+          "note": "both channels:history and channels:read will be assigned to the token. There is no way to remove scopes from an existing token without revoking it entirely."
+        }
+      }
+    }
+  ],
+  "escalation_path": [
+    {
+      "channel": "Slack Developer Community & Support",
+      "url": null,
+      "when_to_use": "Use for developer inquiries, API troubleshooting, and support contact links embedded inside the API Portal.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.slack.dev"
+        ],
+        "probe_ids": [],
+        "note": "Developer resources and support portal channels.",
+        "verification": {
+          "verdict": "supported",
+          "note": "If you can't find your answer there, you can reach our dedicated Developer Support team through our handy support system"
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.slack.dev/authentication/installing-with-oauth/",
+      "title": "Installing via OAuth authorization code flow | Slack Developer Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:31:33.924Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://docs.slack.dev/tools/java-slack-sdk/guides/app-distribution/",
+      "title": "App Distribution (OAuth) | Slack Developer Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:31:33.924Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://docs.slack.dev",
+      "title": "Slack developer docs | Slack Developer Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:31:33.924Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://github.com/slackapi/slack-skills-plugin/blob/main/skills/create-slack-app/SKILL.md",
+      "title": "slack-skills-plugin/skills/create-slack-app/SKILL.md at main · slackapi/slack-skills-plugin · GitHub",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:31:33.924Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+      "title": "Slack Marketplace review guide | Slack Developer Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:31:42.762Z",
+      "retrieval": "search_result"
+    }
+  ],
+  "probes": [
+    {
+      "id": "p1",
+      "kind": "openid_configuration",
+      "target_url": "https://slack.com/.well-known/openid-configuration",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "OpenID Connect discovery document found (issuer: https://slack.com).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://slack.com/.well-known/openid-configuration",
+            "status": 200
+          }
+        ],
+        "issuer": "https://slack.com",
+        "authorization_endpoint": "https://slack.com/openid/connect/authorize",
+        "token_endpoint": "https://slack.com/api/openid.connect.token",
+        "grant_types_supported": [
+          "authorization_code"
+        ],
+        "response_types_supported": [
+          "code"
+        ],
+        "token_endpoint_auth_methods_supported": [
+          "client_secret_post",
+          "client_secret_basic"
+        ],
+        "scopes_supported_count": 3
+      },
+      "timestamp": "2026-11-03T13:31:58.988Z"
+    },
+    {
+      "id": "p2",
+      "kind": "oauth_authorization_server_metadata",
+      "target_url": "https://slack.com/.well-known/oauth-authorization-server",
+      "method": "GET",
+      "outcome": "negative",
+      "http_status": 404,
+      "summary": "No RFC 8414 authorization server metadata at 2 candidate location(s).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://slack.com/.well-known/oauth-authorization-server",
+            "status": 404
+          },
+          {
+            "url": "https://slack.dev/.well-known/oauth-authorization-server",
+            "status": 404
+          }
+        ]
+      },
+      "timestamp": "2026-11-03T13:32:01.048Z"
+    },
+    {
+      "id": "p3",
+      "kind": "authorize_endpoint_reachability",
+      "target_url": "https://slack.com/oauth/v2/authorize",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Authorization endpoint (from docs) responds to a request with a fake client_id (HTTP 200); response mentions an OAuth/client error.",
+      "details": {
+        "final_url": "https://slack.com/oauth/v2/authorize?response_type=code&client_id=oauth-guide-probe-nonexistent-client",
+        "redirects": [],
+        "mentions_oauth_error": true
+      },
+      "timestamp": "2026-11-03T13:32:01.292Z"
+    },
+    {
+      "id": "p4",
+      "kind": "token_endpoint_reachability",
+      "target_url": "https://slack.com/api/oauth.v2.access",
+      "method": "POST",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Token endpoint (from docs) is live: an unauthenticated request with a fake code returned OAuth error \"invalid_code\" (HTTP 200).",
+      "details": {
+        "final_url": "https://slack.com/api/oauth.v2.access",
+        "oauth_error": "invalid_code"
+      },
+      "timestamp": "2026-11-03T13:32:01.551Z"
+    },
+    {
+      "id": "p5",
+      "kind": "dynamic_client_registration",
+      "target_url": "https://slack.com/.well-known/openid-configuration",
+      "method": "none",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "Discovery metadata does not advertise a registration_endpoint, so dynamic client registration is likely unsupported.",
+      "details": {},
+      "timestamp": "2026-11-03T13:32:01.551Z"
+    },
+    {
+      "id": "p6",
+      "kind": "pkce_support",
+      "target_url": "https://slack.com/.well-known/openid-configuration",
+      "method": "none",
+      "outcome": "negative",
+      "http_status": null,
+      "summary": "Metadata does not list code_challenge_methods_supported (PKCE may still be supported; check docs).",
+      "details": {},
+      "timestamp": "2026-11-03T13:32:01.552Z"
+    },
+    {
+      "id": "p7",
+      "kind": "doc_page_exists",
+      "target_url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200), redirected to https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide/.",
+      "details": {
+        "final_url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide/",
+        "redirects": [
+          "https://docs.slack.dev/slack-marketplace/slack-marketplace-review-guide/"
+        ]
+      },
+      "timestamp": "2026-11-03T13:32:03.856Z"
+    },
+    {
+      "id": "p8",
+      "kind": "doc_page_exists",
+      "target_url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-app-guidelines-and-requirements",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200), redirected to https://docs.slack.dev/slack-marketplace/slack-marketplace-app-guidelines-and-requirements/.",
+      "details": {
+        "final_url": "https://docs.slack.dev/slack-marketplace/slack-marketplace-app-guidelines-and-requirements/",
+        "redirects": [
+          "https://docs.slack.dev/slack-marketplace/slack-marketplace-app-guidelines-and-requirements/"
+        ]
+      },
+      "timestamp": "2026-11-03T13:32:05.660Z"
+    },
+    {
+      "id": "p9",
+      "kind": "doc_page_exists",
+      "target_url": "https://slack.com",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://slack.com/intl/en-in/",
+        "redirects": [
+          "https://slack.com/intl/en-in/"
+        ],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:32:23.458Z"
+    },
+    {
+      "id": "p10",
+      "kind": "doc_page_exists",
+      "target_url": "https://api.slack.com/apps",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://api.slack.com/apps",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:32:23.938Z"
+    },
+    {
+      "id": "p11",
+      "kind": "doc_page_exists",
+      "target_url": "https://docs.slack.dev/authentication/installing-with-oauth/",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://docs.slack.dev/authentication/installing-with-oauth/",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:32:24.436Z"
+    }
+  ],
+  "limitations": [
+    "No accounts were created, no forms submitted, no OAuth apps registered, and no credentials were used. Probes are unauthenticated GET requests against public discovery documents, endpoints and documentation pages, plus one unauthenticated POST to the token endpoint with a fake authorization code and a nonexistent client_id (to confirm it answers with an OAuth error).",
+    "Review timelines are only marked as sourced when an official provider page states them. Community-reported timelines are labeled as such.",
+    "Provider policies change; check the linked sources before relying on a requirement."
+  ],
+  "verification_summary": {
+    "claims_total": 25,
+    "by_status": {
+      "verified_by_test": 4,
+      "sourced_from_docs": 15,
+      "inferred": 6,
+      "unknown": 0
+    },
+    "downgraded": 4,
+    "unreachable_sources": 0
+  }
+}
