@@ -38,6 +38,7 @@ function claimsOf(g: Guide): Claim[] {
   g.review_triggering_scopes.forEach((s) =>
     add(`The scope "${s.scope}" triggers review or restricted access: ${s.why}`, s.evidence),
   );
+  g.technical.forEach((t) => add(`${g.app.name} OAuth technical detail: ${t.fact}`, t.evidence));
   g.pitfalls.forEach((p) => add(p.description, p.evidence));
   g.escalation_path.forEach((e) => add(`${e.channel}${e.url ? ` (${e.url})` : ""}: ${e.when_to_use}`, e.evidence));
   return out;

@@ -35,6 +35,7 @@ export function geminiProvider(): LlmProvider {
   ];
   const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
   const PAGE_CHARS = Number(process.env.GEMINI_PAGE_CHARS || 14000);
+  const REQUEST_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS || 90_000);
   const exhaustedUntil = new Map<string, number>(); // model -> epoch ms
   const usedModels = new Set<string>();
   let mi = 0;
@@ -57,16 +58,23 @@ export function geminiProvider(): LlmProvider {
     for (let attempt = 1; ; attempt++) {
       const m = pinModel ?? currentModel();
       try {
-        const r = await ai.models.generateContent({ model: m, contents, config });
+        // Hard per-request timeout: overloaded models sometimes hang instead of returning 503.
+        const r = await ai.models.generateContent({
+          model: m,
+          contents,
+          config: { ...config, abortSignal: AbortSignal.timeout(REQUEST_TIMEOUT_MS) },
+        });
         usedModels.add(m);
         return Object.assign(r, { usedModel: m });
       } catch (e) {
         const status = (e as { status?: number }).status;
-        const msg = e instanceof Error ? e.message : String(e);
+        const msg = e instanceof Error ? `${e.name} ${e.message}` : String(e);
         const daily = status === 429 && /PerDay/i.test(msg);
-        const overloaded = status === 503 || status === 500 || /UNAVAILABLE|overloaded|high demand/i.test(msg);
+        const timedOut = /TimeoutError|AbortError|aborted|timed? ?out/i.test(msg);
+        if (timedOut) console.warn(`[gemini] ${m} timed out after ${REQUEST_TIMEOUT_MS / 1000}s`);
+        const overloaded = timedOut || status === 503 || status === 500 || /UNAVAILABLE|overloaded|high demand/i.test(msg);
         const rateLimited = status === 429 || /RESOURCE_EXHAUSTED/i.test(msg);
-        if (daily || (overloaded && attempt >= 2)) {
+        if (daily || timedOut || (overloaded && attempt >= 2)) {
           // Daily quota gone (or model persistently busy): stop using this model.
           exhaustedUntil.set(m, Date.now() + (daily ? 12 * 3600_000 : 5 * 60_000));
           console.warn(`[gemini] ${m} ${daily ? "daily quota exhausted" : "overloaded"}; rotating models`);

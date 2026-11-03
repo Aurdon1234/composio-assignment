@@ -48,6 +48,7 @@ export const DraftGuide = z.object({
     }),
   ),
   review_triggering_scopes: z.array(z.object({ scope: z.string(), why: z.string(), evidence: DraftEvidence })),
+  technical: z.array(z.object({ fact: z.string(), evidence: DraftEvidence })),
   pitfalls: z.array(z.object({ description: z.string(), evidence: DraftEvidence })),
   escalation_path: z.array(
     z.object({ channel: z.string(), url: z.string().nullable(), when_to_use: z.string(), evidence: DraftEvidence }),
@@ -56,30 +57,65 @@ export const DraftGuide = z.object({
 });
 export type DraftGuide = z.infer<typeof DraftGuide>;
 
-/** Stage 3b: research notes + probe results -> structured draft guide. */
+/** Heuristic: did the draft drop material the notes clearly contain? */
+export function coverageGaps(draft: DraftGuide, notes: string): string[] {
+  const gaps: string[] = [];
+  if (draft.status === "no_oauth_found") return gaps;
+  if (draft.steps.length < 5) gaps.push(`only ${draft.steps.length} steps; the path from zero to real users connecting usually needs 5-10`);
+  if (draft.blockers.length === 0 && /approv|verif|marketplace|review|restrict|admin|SSO|paid|plan|partner/i.test(notes)) {
+    gaps.push("no blockers, but the notes mention approvals/verification/restrictions/plans — include conditional blockers with applies_when");
+  }
+  if (draft.pitfalls.length < 3 && /pitfall|error|mismatch|expire|limit/i.test(notes)) gaps.push("fewer than 3 pitfalls although the notes list more");
+  if (draft.technical.length < 3) gaps.push("fewer than 3 technical facts (endpoints, PKCE, redirect rules, token lifetimes)");
+  if (/github app|custom app|private app|public app|app type/i.test(notes) && !draft.steps.some((s) => /choose|decide|type|vs\.?/i.test(s.title + s.detail))) {
+    gaps.push("the notes describe more than one app type, but no step helps the developer choose between them");
+  }
+  return gaps;
+}
+
+/** Stage 3b: research notes + probe results -> structured draft guide (+ one revision pass if thin). */
 export async function extract(input: {
   appName: string;
   notes: string;
   retrieved: Map<string, RetrievedUrl>;
   probes: Probe[];
+  onProgress?: (m: string) => void;
 }): Promise<DraftGuide> {
-  return llm().structured({
-    system: EXTRACT_SYSTEM,
-    user: extractUserPrompt({
-      appName: input.appName,
-      notes: input.notes,
-      retrieved: [...input.retrieved.values()],
-      probes: input.probes.map(({ id, kind, target_url, outcome, http_status, summary, details }) => ({
-        id,
-        kind,
-        target_url,
-        outcome,
-        http_status,
-        summary,
-        details,
-      })),
-    }),
-    schema: DraftGuide,
-    effort: "medium",
+  const user = extractUserPrompt({
+    appName: input.appName,
+    notes: input.notes,
+    retrieved: [...input.retrieved.values()],
+    probes: input.probes.map(({ id, kind, target_url, outcome, http_status, summary, details }) => ({
+      id,
+      kind,
+      target_url,
+      outcome,
+      http_status,
+      summary,
+      details,
+    })),
   });
+  const draft = await llm().structured({ system: EXTRACT_SYSTEM, user, schema: DraftGuide, effort: "medium" });
+
+  const gaps = coverageGaps(draft, input.notes);
+  if (!gaps.length) return draft;
+  input.onProgress?.(`draft looks thin (${gaps.length} gap(s)); running one revision pass`);
+  try {
+    return await llm().structured({
+      system: EXTRACT_SYSTEM,
+      user: `${user}
+
+# Your previous draft
+${JSON.stringify(draft)}
+
+# Problems with the previous draft
+${gaps.map((g) => `- ${g}`).join("\n")}
+
+Rewrite the complete guide. Keep everything that was right, and add what the research notes support but the draft left out. Do not add anything the notes do not support; the evidence rules still apply.`,
+      schema: DraftGuide,
+      effort: "medium",
+    });
+  } catch {
+    return draft; // revision is best-effort
+  }
 }

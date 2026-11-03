@@ -16,6 +16,25 @@ export async function saveGuide(g: Guide): Promise<string> {
   return file;
 }
 
+/** Intermediate artifacts (research notes) for debugging/evaluation; gitignored, best-effort. */
+export async function saveDebug(slug: string, name: string, content: string): Promise<void> {
+  try {
+    const dir = path.join(process.cwd(), ".cache", slug);
+    await fs.mkdir(dir, { recursive: true });
+    await fs.writeFile(path.join(dir, name), content, "utf8");
+  } catch {
+    // read-only filesystem (e.g. Vercel): skip
+  }
+}
+
+export async function loadDebug(slug: string, name: string): Promise<string | null> {
+  try {
+    return await fs.readFile(path.join(process.cwd(), ".cache", slug, name), "utf8");
+  } catch {
+    return null;
+  }
+}
+
 export async function getGuide(slug: string): Promise<Guide | null> {
   if (!/^[a-z0-9-]+$/.test(slug)) return null;
   try {

@@ -168,6 +168,9 @@ export const Guide = z.object({
     z.object({ scope: z.string(), why: z.string(), evidence: Evidence }),
   ),
 
+  /** Endpoint URLs, PKCE, client registration, redirect rules, token lifetimes. Probes back these. */
+  technical: z.array(z.object({ fact: z.string(), evidence: Evidence })).default([]),
+
   pitfalls: z.array(z.object({ description: z.string(), evidence: Evidence })),
 
   escalation_path: z.array(
@@ -208,6 +211,7 @@ export function listClaims(g: Guide): { label: string; evidence: Evidence }[] {
   g.prerequisites.forEach((p) => out.push({ label: `prereq: ${p.item}`, evidence: p.evidence }));
   g.steps.forEach((s) => out.push({ label: `step ${s.order}: ${s.title}`, evidence: s.evidence }));
   g.review_triggering_scopes.forEach((s) => out.push({ label: `scope: ${s.scope}`, evidence: s.evidence }));
+  g.technical.forEach((t) => out.push({ label: `tech: ${t.fact}`, evidence: t.evidence }));
   g.pitfalls.forEach((p) => out.push({ label: `pitfall: ${p.description}`, evidence: p.evidence }));
   g.escalation_path.forEach((e) => out.push({ label: `escalation: ${e.channel}`, evidence: e.evidence }));
   return out;

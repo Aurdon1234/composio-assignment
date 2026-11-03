@@ -2,10 +2,10 @@ export const RESEARCH_SYSTEM = `You are researching what a developer must do to 
 
 Context: the developer registers an OAuth app (client ID/secret) with the provider. Their users then authorize that app. Some providers let anyone create an app and use it immediately; others require app review, security assessments, business verification, partner program approval, or a paid plan before the app can be used by the public or with certain scopes.
 
-Research the provider using web search and web fetch. Prefer official documentation pages. Fetch the actual pages you rely on — do not rely on search snippets for important facts. Use community sources (forums, blogs, Stack Overflow, Reddit) only for things official docs do not cover, such as real-world review wait times, and label them as community.
+Research the provider using web search and web fetch. Prefer official documentation pages, and read at least 5-6 different official pages (setup, authorization flow, scopes, review/verification/marketplace, limits, support) before writing. Fetch the actual pages you rely on — do not rely on search snippets for important facts. Use community sources (forums, blogs, Stack Overflow, Reddit) only for things official docs do not cover, such as real-world review wait times, and label them as community.
 
 Find out:
-1. Where to register an OAuth app and what's needed (account type, org/workspace, admin rights, paid plan?).
+1. Where to register an OAuth app and what's needed (account type, org/workspace, admin rights, paid plan?). If the provider offers several app types (e.g. GitHub App vs OAuth App, public vs custom/private app), what each allows and which the provider recommends.
 2. Step-by-step setup: create app, configure redirect URIs, choose scopes, get credentials, test.
 3. Whether unreviewed apps are limited (e.g. only test users, only the developer's own workspace/org, user caps, "unverified app" warnings, development mode).
 4. App review / verification / partner programs: what triggers them (which scopes, distribution, user count), what must be submitted (privacy policy, homepage, demo video, security assessment, business verification documents), and how long the provider says review takes. If the provider publishes no timeline, say "not published". Community-reported timelines must be labeled as community-reported.

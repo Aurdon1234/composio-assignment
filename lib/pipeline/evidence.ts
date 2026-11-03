@@ -120,6 +120,7 @@ export function assembleGuide(args: {
     prerequisites: draft.prerequisites.map((p) => ({ ...p, evidence: fix(p.evidence) })),
     steps: draft.steps.map((s) => ({ ...s, evidence: fix(s.evidence) })),
     review_triggering_scopes: draft.review_triggering_scopes.map((s) => ({ ...s, evidence: fix(s.evidence) })),
+    technical: draft.technical.map((t) => ({ ...t, evidence: fix(t.evidence) })),
     pitfalls: draft.pitfalls.map((p) => ({ ...p, evidence: fix(p.evidence) })),
     escalation_path: draft.escalation_path.map((e) => ({ ...e, evidence: fix(e.evidence) })),
     sources: [],
@@ -137,6 +138,19 @@ export function assembleGuide(args: {
     },
   };
 
+  // Probe results become tested technical facts directly (not left to the model).
+  const usedProbeIds = new Set(guide.technical.flatMap((t) => t.evidence.probe_ids));
+  for (const p of probes) {
+    if (usedProbeIds.has(p.id)) continue;
+    const fact = probeFact(p);
+    if (fact) {
+      guide.technical.push({
+        fact,
+        evidence: { evidence_status: "verified_by_test", source_urls: [], probe_ids: [p.id], note: `Observed directly by probe ${p.id} at ${p.timestamp}.` },
+      });
+    }
+  }
+
   // Sources = every URL cited anywhere + every fetched URL, with type and retrieval info.
   const cited = new Set(listClaims(guide).flatMap((c) => c.evidence.source_urls.map(normUrl)));
   const sources: Source[] = [];
@@ -151,6 +165,38 @@ export function assembleGuide(args: {
   }
   guide.sources = sources;
   return guide;
+}
+
+/** Plain statement of what a probe observed, or null if it proves nothing (skipped/inconclusive/error). */
+function probeFact(p: Probe): string | null {
+  if (p.outcome !== "positive" && p.outcome !== "negative") return null;
+  const d = p.details as Record<string, unknown>;
+  switch (p.kind) {
+    case "openid_configuration":
+      return p.outcome === "positive"
+        ? `An OpenID Connect discovery document is published at ${p.target_url}.`
+        : `No OpenID Connect discovery document was found at the standard location(s) checked.`;
+    case "oauth_authorization_server_metadata":
+      return p.outcome === "positive"
+        ? `RFC 8414 authorization server metadata is published at ${p.target_url}.`
+        : `No RFC 8414 authorization server metadata was found at the standard location(s) checked.`;
+    case "authorize_endpoint_reachability":
+      return p.outcome === "positive" ? `The authorization endpoint ${p.target_url} is live and responds to authorization requests.` : null;
+    case "token_endpoint_reachability":
+      return p.outcome === "positive"
+        ? `The token endpoint ${p.target_url} is live (an unauthenticated request returned the OAuth error "${String(d.oauth_error)}").`
+        : null;
+    case "dynamic_client_registration":
+      return p.outcome === "positive"
+        ? `Dynamic client registration is advertised (${p.target_url}), so clients could in principle be registered programmatically.`
+        : `The discovery metadata advertises no dynamic client registration endpoint: the OAuth app must be registered manually in the provider console.`;
+    case "pkce_support":
+      return p.outcome === "positive"
+        ? `The discovery metadata advertises PKCE code challenge methods: ${(d.code_challenge_methods_supported as string[] | undefined)?.join(", ")}.`
+        : `The discovery metadata does not list PKCE code challenge methods (PKCE may still be supported; check the docs).`;
+    default:
+      return null;
+  }
 }
 
 export function summarize(guide: Guide): Guide["verification_summary"] {

@@ -25,18 +25,24 @@ Never invent a URL. Never cite a URL for a claim it did not support in the notes
 - paid_or_business_verified: a paid plan and/or verified legal business is required to get started or to go live.
 If the docs are insufficient to decide, pick the best fit, mark the verdict "inferred" and explain.
 
+## App fields
+- app.name: the product name only (e.g. "GitHub", "Slack"), not "GitHub OAuth App".
+- app.developer_portal_url: the console page where a developer registers/manages OAuth apps (e.g. https://github.com/settings/developers, https://api.slack.com/apps), not a docs article. null if not found.
+- app.oauth_docs_url: the main official OAuth documentation page.
+
 ## Steps
-Ordered, concrete steps from zero to "real users can connect", including review submission if applicable. owner:
+Ordered, concrete steps from zero to "real users can connect" — typically 5-10 steps. Cover: choosing the right app type if the provider has several (e.g. GitHub App vs OAuth App, public vs private/custom app), registering the app, configuring redirect URIs and scopes, storing credentials, implementing the flow, testing with your own account, anything required before outside users can connect (review submission, verification, listing, admin approval), and going live. owner:
 - "agent": an AI coding agent could do this for the developer without the developer's provider login (write OAuth code, PKCE, token storage, draft privacy policy text, draft review answers, check redirect URI config files, run probes).
 - "developer": requires a human with a provider account, legal identity, payment, admin rights, or recording a demo video, or clicking through the provider console.
 - "provider": the provider does it (review, approval).
 agent_can_automate: true if an agent can do it end-to-end or prepare everything so the developer just approves.
 
 ## Other sections
-- blockers: things that can stop or delay going live. Use the given types. applies_when says when it applies.
+- blockers: things that can stop or delay going live, INCLUDING conditional ones (e.g. "only if you list on the Marketplace", "only for sensitive scopes", "only when users belong to an org that restricts third-party apps"). Use the given types. applies_when says when it applies. Empty only if the notes show nothing can block going live.
+- technical: concrete facts an engineer needs: authorization and token endpoint URLs, whether PKCE is supported/required, whether dynamic client registration or an OIDC discovery document exists, redirect URI rules (exact match, localhost, number allowed), token lifetimes/refresh tokens, rate limits relevant to auth. Use probe ids with "verified_by_test" where a usable probe shows the fact (e.g. "authorize endpoint is live", "no OIDC discovery document at the standard location").
 - review_triggering_scopes: exact scope names from the docs that trigger review, restricted access, or verification. Do not invent scope names. Empty if none documented.
 - pitfalls: concrete mistakes (redirect URI mismatch, token expiry, unverified app warnings, user caps).
-- escalation_path: support channels, forms, forums, partner contacts with URLs where known.
+- escalation_path: support channels, forms, forums, partner contacts. Only give a URL if it appears in the notes or retrieved list; otherwise url=null. Never construct a URL.
 - sources: every URL you cited, with a short title and source_type (official_docs, official_blog, official_forum, community, other).
 
 ## Status

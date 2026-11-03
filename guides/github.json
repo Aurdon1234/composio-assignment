@@ -1,0 +1,644 @@
+{
+  "schema_version": "1.0.0",
+  "pipeline_version": "0.1.0",
+  "generated_at": "2026-11-03T13:19:21.070Z",
+  "model": "gemini:gemini-3.5-flash-lite",
+  "query": "github",
+  "status": "complete",
+  "app": {
+    "name": "GitHub",
+    "slug": "github",
+    "website": "https://github.com",
+    "developer_portal_url": "https://github.com/settings/developers",
+    "oauth_docs_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+  },
+  "verdict": {
+    "tier": "instant_self_serve",
+    "summary": "GitHub OAuth apps are instantly self-serve with no manual review or verification required to deploy and allow outside users to connect.",
+    "evidence": {
+      "evidence_status": "sourced_from_docs",
+      "source_urls": [
+        "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+      ],
+      "probe_ids": [],
+      "note": "GitHub does not have a formal verification queue for standard OAuth apps to function in production.",
+      "verification": {
+        "verdict": "supported",
+        "note": "You can create and register an OAuth app under your personal account or under any organization you have administrative access to."
+      }
+    }
+  },
+  "time": {
+    "effort_minutes": {
+      "min": 15,
+      "max": 45,
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Standard app creation and flow implementation takes minimal developer time."
+      }
+    },
+    "wait_days": {
+      "min": 0,
+      "max": 0,
+      "published_by_provider": true,
+      "community_reported": false,
+      "applies_to": "None required for standard OAuth apps",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+        ],
+        "probe_ids": [],
+        "note": "No review queue exists for regular OAuth apps.",
+        "verification": {
+          "verdict": "supported",
+          "note": "OAuth apps can be created directly through settings without stating any required manual review or waiting time."
+        }
+      }
+    },
+    "confidence": "high"
+  },
+  "blockers": [
+    {
+      "type": "other",
+      "description": "Marketplace listing requires an organization-owned app, minimum user thresholds (200 users), and publisher verification.",
+      "applies_when": "You want to list your app on the GitHub Marketplace",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/github-marketplace/creating-apps-for-github-marketplace/requirements-for-listing-an-app",
+          "https://docs.github.com/enterprise-cloud@latest/apps/github-marketplace/github-marketplace-overview/applying-for-publisher-verification-for-your-organization"
+        ],
+        "probe_ids": [],
+        "note": "Marketplace requirements specify minimum installation thresholds and organization ownership.",
+        "verification": {
+          "verdict": "supported",
+          "note": "To publish a paid app... your app must be owned by an organization that is a verified publisher... OAuth apps should have a minimum of 200 users."
+        }
+      }
+    }
+  ],
+  "prerequisites": [
+    {
+      "item": "A personal GitHub account to register the application.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+        ],
+        "probe_ids": [],
+        "note": "Anyone with a personal account can create an OAuth app.",
+        "verification": {
+          "verdict": "supported",
+          "note": "You can create and register an OAuth app under your personal account..."
+        }
+      }
+    }
+  ],
+  "steps": [
+    {
+      "order": 1,
+      "title": "Choose Between OAuth App and GitHub App",
+      "detail": "Review whether your integration needs standard user-delegated scopes (OAuth App) or fine-grained repository permissions, short-lived tokens, and bot capabilities (GitHub App). Use OAuth apps primarily if you need enterprise-level resources.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "GitHub strongly recommends GitHub Apps unless enterprise permissions are required.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Differences between GitHub Apps and OAuth apps documentation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "If your app needs to access enterprise-level resources... you should use an OAuth app because a GitHub App cannot yet be given permissions against an enterprise."
+        }
+      }
+    },
+    {
+      "order": 2,
+      "title": "Navigate to Developer Settings",
+      "detail": "Log into GitHub and go to Settings > Developer settings > OAuth apps, then click New OAuth App.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Requires human login to the GitHub console.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+        ],
+        "probe_ids": [],
+        "note": "Instructions for creating an OAuth app.",
+        "verification": {
+          "verdict": "supported",
+          "note": "In the upper-right corner... click Settings. In the left sidebar, click Developer settings. In the left sidebar, click OAuth apps. Click New OAuth App."
+        }
+      }
+    },
+    {
+      "order": 3,
+      "title": "Register the OAuth App and Configure Redirect URIs",
+      "detail": "Fill out the application name, homepage URL, description, and up to 10 callback URLs. Optionally enable Device Flow or expiring tokens.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Provide exact redirect URIs.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+        ],
+        "probe_ids": [],
+        "note": "Details fields required when creating an app.",
+        "verification": {
+          "verdict": "supported",
+          "note": "In Application name... In Homepage URL... In Authorization callback URL... up to 10 callback URLs... click Enable Device Flow..."
+        }
+      }
+    },
+    {
+      "order": 4,
+      "title": "Retrieve and Secure Credentials",
+      "detail": "Save the generated client ID and securely store the client secret, noting that the secret is shown only once.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Client secret management is critical for backend token exchanges.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Getting client id and generating secret.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 5 mentions client_secret and client ID but does not state that the secret is shown only once.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "order": 5,
+      "title": "Implement the Authorization Flow",
+      "detail": "Build the Web Application Flow or Device Flow pointing to https://github.com/login/oauth/authorize and exchanging codes at https://github.com/login/oauth/access_token, incorporating PKCE (S256).",
+      "owner": "agent",
+      "agent_can_automate": true,
+      "notes": "Can be fully implemented in code by an AI agent.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Authorizing OAuth apps documentation.",
+        "verification": {
+          "verdict": "supported",
+          "note": "OAuth implementation supports standard authorization code grant type... code_challenge... S256"
+        }
+      }
+    },
+    {
+      "order": 6,
+      "title": "Test with Your Own Account",
+      "detail": "Trigger the authorization flow using your own personal GitHub account to ensure scopes are requested correctly and tokens are successfully parsed and stored.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "Verifies that redirect URIs and scopes match your implementation.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Testing requires manual account authorization.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 5 does not mention testing with your own personal GitHub account to ensure scopes are requested correctly.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    },
+    {
+      "order": 7,
+      "title": "Deploy for Outside Users",
+      "detail": "Release your application to production. Since standard OAuth apps have no review queue, outside users can connect immediately.",
+      "owner": "developer",
+      "agent_can_automate": false,
+      "notes": "No provider approval is required for standard deployment.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app"
+        ],
+        "probe_ids": [],
+        "note": "Instant deployment availability.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Standard OAuth apps are created immediately and self-serve via Developer Settings without a review queue."
+        }
+      }
+    }
+  ],
+  "review_triggering_scopes": [],
+  "technical": [
+    {
+      "fact": "Authorization endpoint is https://github.com/login/oauth/authorize",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [
+          "p3"
+        ],
+        "note": "Verified by test and documented.",
+        "verification": {
+          "verdict": "supported",
+          "note": "GET https://github.com/login/oauth/authorize"
+        }
+      }
+    },
+    {
+      "fact": "Token endpoint is https://github.com/login/oauth/access_token",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Token endpoint documented.",
+        "verification": {
+          "verdict": "supported",
+          "note": "POST https://github.com/login/oauth/access_token"
+        }
+      }
+    },
+    {
+      "fact": "PKCE is supported using S256 code challenge method.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "GitHub documentation states PKCE S256 is supported.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Must be S256 - the plain code challenge method is not supported."
+        }
+      }
+    },
+    {
+      "fact": "Authorization codes expire after 10 minutes.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Explicitly stated in authorization docs.",
+        "verification": {
+          "verdict": "supported",
+          "note": "The temporary code will expire after 10 minutes."
+        }
+      }
+    },
+    {
+      "fact": "No OpenID Connect discovery document was found at the standard location(s) checked.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p1"
+        ],
+        "note": "Observed directly by probe p1 at 2026-11-03T13:18:57.347Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    },
+    {
+      "fact": "No RFC 8414 authorization server metadata was found at the standard location(s) checked.",
+      "evidence": {
+        "evidence_status": "verified_by_test",
+        "source_urls": [],
+        "probe_ids": [
+          "p2"
+        ],
+        "note": "Observed directly by probe p2 at 2026-11-03T13:18:58.061Z.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "Backed by a probe result."
+        }
+      }
+    }
+  ],
+  "pitfalls": [
+    {
+      "description": "Failing to validate user identity after every sign-in, as users can switch accounts during authorization.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Documented pitfall regarding account switching.",
+        "verification": {
+          "verdict": "supported",
+          "note": "Every time you receive an access token, you should use the token to revalidate the user's identity. A user can change which account they are signed into when you send them to authorize your app, and you risk mixing user data if you do not validate..."
+        }
+      }
+    },
+    {
+      "description": "Assuming refresh tokens are always returned without checking if expiring tokens are enabled.",
+      "evidence": {
+        "evidence_status": "sourced_from_docs",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Token expiration behavior documented.",
+        "verification": {
+          "verdict": "supported",
+          "note": "...your app should not assume that a refresh token is always returned."
+        }
+      }
+    },
+    {
+      "description": "Requesting broader scopes than necessary, such as using 'repo' when 'public_repo' or 'repo:status' would suffice.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [
+          "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps"
+        ],
+        "probe_ids": [],
+        "note": "Documented scope best practices.",
+        "verification": {
+          "verdict": "unsupported",
+          "note": "Source 6 lists available scopes and descriptions, but does not explicitly claim or warn against requesting broader scopes than necessary.",
+          "original_status": "sourced_from_docs"
+        }
+      }
+    }
+  ],
+  "escalation_path": [
+    {
+      "channel": "GitHub Support Portal",
+      "url": null,
+      "when_to_use": "When encountering account or app configuration issues.",
+      "evidence": {
+        "evidence_status": "inferred",
+        "source_urls": [],
+        "probe_ids": [],
+        "note": "Standard support escalation.",
+        "verification": {
+          "verdict": "not_checked",
+          "note": "No source cited for this claim, so there is nothing to check."
+        }
+      }
+    }
+  ],
+  "sources": [
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps",
+      "title": "Scopes for OAuth apps - GitHub Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:18:36.924Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+      "title": "Authorizing OAuth apps - GitHub Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:18:36.924Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+      "title": "Creating an OAuth app - GitHub Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:18:36.924Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps",
+      "title": "Differences between GitHub Apps and OAuth apps - GitHub Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:18:36.924Z",
+      "retrieval": "fetched"
+    },
+    {
+      "url": "https://docs.github.com/en/apps/github-marketplace/creating-apps-for-github-marketplace/requirements-for-listing-an-app",
+      "title": "Requirements for listing an app - GitHub Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:18:39.951Z",
+      "retrieval": "search_result"
+    },
+    {
+      "url": "https://docs.github.com/enterprise-cloud@latest/apps/github-marketplace/github-marketplace-overview/applying-for-publisher-verification-for-your-organization",
+      "title": "Applying for publisher verification for your organization - GitHub Enterprise Cloud Docs",
+      "source_type": "official_docs",
+      "retrieved_at": "2026-11-03T13:18:39.951Z",
+      "retrieval": "search_result"
+    }
+  ],
+  "probes": [
+    {
+      "id": "p1",
+      "kind": "openid_configuration",
+      "target_url": "https://github.com/.well-known/openid-configuration",
+      "method": "GET",
+      "outcome": "negative",
+      "http_status": 404,
+      "summary": "No OpenID Connect discovery document at 1 candidate location(s).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://github.com/.well-known/openid-configuration",
+            "status": 404
+          }
+        ]
+      },
+      "timestamp": "2026-11-03T13:18:57.347Z"
+    },
+    {
+      "id": "p2",
+      "kind": "oauth_authorization_server_metadata",
+      "target_url": "https://github.com/.well-known/oauth-authorization-server",
+      "method": "GET",
+      "outcome": "negative",
+      "http_status": 404,
+      "summary": "No RFC 8414 authorization server metadata at 1 candidate location(s).",
+      "details": {
+        "attempts": [
+          {
+            "url": "https://github.com/.well-known/oauth-authorization-server",
+            "status": 404
+          }
+        ]
+      },
+      "timestamp": "2026-11-03T13:18:58.061Z"
+    },
+    {
+      "id": "p3",
+      "kind": "authorize_endpoint_reachability",
+      "target_url": "https://github.com/login/oauth/authorize",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Authorization endpoint (from docs) responds to a request with a fake client_id (HTTP 200, redirected to https://github.com/login).",
+      "details": {
+        "final_url": "https://github.com/login?client_id=oauth-guide-probe-nonexistent-client&return_to=%2Flogin%2Foauth%2Fauthorize%3Fclient_id%3Doauth-guide-probe-nonexistent-client%26response_type%3Dcode",
+        "redirects": [
+          "https://github.com/login?client_id=oauth-guide-probe-nonexistent-client&return_to=%2Flogin%2Foauth%2Fauthorize%3Fclient_id%3Doauth-guide-probe-nonexistent-client%26response_type%3Dcode"
+        ],
+        "mentions_oauth_error": false
+      },
+      "timestamp": "2026-11-03T13:18:58.836Z"
+    },
+    {
+      "id": "p4",
+      "kind": "token_endpoint_reachability",
+      "target_url": "https://github.com/login/oauth/access_token",
+      "method": "POST",
+      "outcome": "inconclusive",
+      "http_status": 404,
+      "summary": "Token endpoint (from docs) returned HTTP 404 without a standard OAuth error code; inconclusive (some providers return 404 for unknown clients).",
+      "details": {
+        "final_url": "https://github.com/login/oauth/access_token",
+        "oauth_error": null
+      },
+      "timestamp": "2026-11-03T13:18:59.112Z"
+    },
+    {
+      "id": "p5",
+      "kind": "dynamic_client_registration",
+      "target_url": null,
+      "method": "none",
+      "outcome": "skipped",
+      "http_status": null,
+      "summary": "No discovery metadata, so dynamic client registration support could not be tested.",
+      "details": {},
+      "timestamp": "2026-11-03T13:18:59.113Z"
+    },
+    {
+      "id": "p6",
+      "kind": "pkce_support",
+      "target_url": null,
+      "method": "none",
+      "outcome": "skipped",
+      "http_status": null,
+      "summary": "No discovery metadata; PKCE support could not be tested, only read from docs.",
+      "details": {},
+      "timestamp": "2026-11-03T13:18:59.113Z"
+    },
+    {
+      "id": "p7",
+      "kind": "doc_page_exists",
+      "target_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/creating-an-oauth-app",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:18:59.341Z"
+    },
+    {
+      "id": "p8",
+      "kind": "doc_page_exists",
+      "target_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authorizing-oauth-apps",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:18:59.444Z"
+    },
+    {
+      "id": "p9",
+      "kind": "doc_page_exists",
+      "target_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/scopes-for-oauth-apps",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:18:59.616Z"
+    },
+    {
+      "id": "p10",
+      "kind": "doc_page_exists",
+      "target_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Page loads (HTTP 200).",
+      "details": {
+        "final_url": "https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/differences-between-github-apps-and-oauth-apps",
+        "redirects": []
+      },
+      "timestamp": "2026-11-03T13:19:00.323Z"
+    },
+    {
+      "id": "p11",
+      "kind": "doc_page_exists",
+      "target_url": "https://github.com",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200).",
+      "details": {
+        "final_url": "https://github.com/",
+        "redirects": [],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:19:21.442Z"
+    },
+    {
+      "id": "p12",
+      "kind": "doc_page_exists",
+      "target_url": "https://github.com/settings/developers",
+      "method": "GET",
+      "outcome": "positive",
+      "http_status": 200,
+      "summary": "Link loads (HTTP 200) — redirects to sign-in, as expected for a developer console.",
+      "details": {
+        "final_url": "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fdevelopers",
+        "redirects": [
+          "https://github.com/login?return_to=https%3A%2F%2Fgithub.com%2Fsettings%2Fdevelopers"
+        ],
+        "checked_as": "link_in_guide"
+      },
+      "timestamp": "2026-11-03T13:19:22.155Z"
+    }
+  ],
+  "limitations": [
+    "No accounts were created, no forms submitted, no OAuth apps registered, and no credentials were used. Probes are unauthenticated GET requests against public discovery documents, endpoints and documentation pages, plus one unauthenticated POST to the token endpoint with a fake authorization code and a nonexistent client_id (to confirm it answers with an OAuth error).",
+    "Review timelines are only marked as sourced when an official provider page states them. Community-reported timelines are labeled as such.",
+    "Provider policies change; check the linked sources before relying on a requirement."
+  ],
+  "verification_summary": {
+    "claims_total": 22,
+    "by_status": {
+      "verified_by_test": 2,
+      "sourced_from_docs": 15,
+      "inferred": 5,
+      "unknown": 0
+    },
+    "downgraded": 3,
+    "unreachable_sources": 0
+  }
+}
