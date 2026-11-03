@@ -78,7 +78,7 @@ npm run generate -- github "Google Workspace" shopify.com
 REUSE_RESEARCH=1 npm run generate -- github   # re-run later stages on cached research (no research calls)
 ```
 
-**Deploy (Vercel):** import the repo, add `GEMINI_API_KEY` and `TAVILY_API_KEY`, connect a Blob store, and deploy. `/api/generate` sets `maxDuration = 300`; live generation takes 1–4 minutes, which needs Vercel's Fluid compute (the default on new projects).
+**Deploy (Vercel):** import the repo, add `GEMINI_API_KEY` and `TAVILY_API_KEY`, connect a Blob store, and deploy. `/api/generate` sets `maxDuration = 300` because live generation takes 1–4 minutes; check that your Vercel plan allows functions that long, or generations will be cut off.
 
 ## Limitations
 
