@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { extractJsonBlock, runWebAgent, type ProgressFn, type RetrievedUrl } from "../anthropic";
+import { extractJsonBlock, llm, type ProgressFn, type RetrievedUrl } from "../llm";
 import { RESOLVE_SYSTEM } from "../prompts/resolve";
 
 export const Resolved = z.object({
@@ -29,7 +29,7 @@ export function slugify(s: string): string {
 
 /** Stage 1: app name or URL -> canonical name, developer portal, OAuth docs URLs. */
 export async function resolve(query: string, onProgress?: ProgressFn): Promise<Resolved> {
-  const res = await runWebAgent({
+  const res = await llm().runWebAgent({
     system: RESOLVE_SYSTEM,
     user: `Identify this app and its OAuth developer documentation: ${JSON.stringify(query)}`,
     maxSearches: 4,

@@ -1,11 +1,10 @@
 import { z } from "zod";
-import { normUrl, runWebAgent, structured, type ProgressFn } from "../anthropic";
+import { llm, normUrl, type ProgressFn } from "../llm";
 import { VERIFY_SYSTEM, verifyUserPrompt } from "../prompts/verify";
 import type { Evidence, Guide } from "../schema";
 import { htmlToText, safeFetch } from "./safeFetch";
 
 const MAX_PAGE_CHARS = 60_000;
-const CONCURRENCY = 4;
 
 const VerifyOut = z.object({
   results: z.array(
@@ -45,18 +44,12 @@ function claimsOf(g: Guide): Claim[] {
 async function pageText(url: string, cache: Map<string, string>, onProgress?: ProgressFn): Promise<string> {
   const r = await safeFetch(url, { timeoutMs: 15_000, accept: "text/html,application/xhtml+xml,text/plain,*/*" });
   let text = r.ok ? (r.contentType?.includes("html") ? htmlToText(r.body) : r.body) : "";
-  // JS-rendered or bot-blocked pages: fall back to Anthropic's web_fetch (raw page text, not a model summary).
+  // JS-rendered or bot-blocked pages: fall back to the provider's page reader if it has one
+  // (Anthropic web_fetch returns raw page text, not a model summary).
   if (text.length < 800) {
-    onProgress?.(`verify: direct fetch thin (${text.length} chars), using web_fetch for ${url}`);
+    onProgress?.(`verify: direct fetch thin (${text.length} chars) for ${url}`);
     try {
-      const res = await runWebAgent({
-        system: "Fetch the given URL with web_fetch once. Reply only with 'done'.",
-        user: url,
-        allowSearch: false,
-        maxFetches: 1,
-        effort: "low",
-      });
-      const t = res.fetchedText.get(normUrl(url)) ?? [...res.fetchedText.values()][0];
+      const t = await llm().fetchPageText(url);
       if (t && t.length > text.length) text = t;
     } catch {}
   }
@@ -106,7 +99,7 @@ export async function verify(g: Guide, onProgress?: ProgressFn): Promise<Guide> 
         results = job.claims.map((c) => ({ id: c.id, verdict: "source_unreachable" as const, note: "Page could not be retrieved." }));
       } else {
         try {
-          const out = await structured({
+          const out = await llm().structured({
             system: VERIFY_SYSTEM,
             user: verifyUserPrompt(job.url, text, job.claims.map(({ id, statement }) => ({ id, statement }))),
             schema: VerifyOut,
@@ -124,7 +117,7 @@ export async function verify(g: Guide, onProgress?: ProgressFn): Promise<Guide> 
       onProgress?.(`verify: checked ${job.url} (${results.filter((r) => r.verdict === "supported").length}/${results.length} supported)`);
     }
   }
-  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+  await Promise.all(Array.from({ length: llm().verifyConcurrency }, worker));
 
   for (const c of claims) {
     if (c.evidence.evidence_status !== "sourced_from_docs") continue;

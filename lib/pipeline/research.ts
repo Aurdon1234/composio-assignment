@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { extractJsonBlock, runWebAgent, type ProgressFn, type RetrievedUrl } from "../anthropic";
+import { extractJsonBlock, llm, type ProgressFn, type RetrievedUrl } from "../llm";
 import { RESEARCH_SYSTEM, researchUserPrompt } from "../prompts/research";
 import type { Resolved } from "./resolve";
 
@@ -19,7 +19,7 @@ export type ResearchResult = {
 
 /** Stage 2: agentic web research -> cited markdown notes + endpoint candidates. */
 export async function research(resolved: Resolved, onProgress?: ProgressFn): Promise<ResearchResult> {
-  const res = await runWebAgent({
+  const res = await llm().runWebAgent({
     system: RESEARCH_SYSTEM,
     user: researchUserPrompt(resolved),
     maxSearches: 10,

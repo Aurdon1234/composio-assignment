@@ -1,4 +1,4 @@
-import { normUrl, MODEL, type RetrievedUrl } from "../anthropic";
+import { llm, normUrl, type RetrievedUrl } from "../llm";
 import {
   SCHEMA_VERSION,
   listClaims,
@@ -93,7 +93,7 @@ export function assembleGuide(args: {
     schema_version: SCHEMA_VERSION,
     pipeline_version: PIPELINE_VERSION,
     generated_at: new Date().toISOString(),
-    model: MODEL,
+    model: `${llm().name}:${llm().model}`,
     query: resolved.query,
     status: draft.status,
     app: {

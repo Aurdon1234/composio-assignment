@@ -1,5 +1,5 @@
 import type { Probe } from "../schema";
-import type { ProgressFn } from "../anthropic";
+import type { ProgressFn } from "../llm";
 import type { Endpoints } from "./research";
 import type { Resolved } from "./resolve";
 import { safeFetch } from "./safeFetch";

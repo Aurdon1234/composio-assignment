@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { structured, type RetrievedUrl } from "../anthropic";
+import { llm, type RetrievedUrl } from "../llm";
 import { EXTRACT_SYSTEM, extractUserPrompt } from "../prompts/extract";
 import { BlockerType, DifficultyTier, EvidenceStatus, SourceType, StepOwner, type Probe } from "../schema";
 
@@ -63,7 +63,7 @@ export async function extract(input: {
   retrieved: Map<string, RetrievedUrl>;
   probes: Probe[];
 }): Promise<DraftGuide> {
-  return structured({
+  return llm().structured({
     system: EXTRACT_SYSTEM,
     user: extractUserPrompt({
       appName: input.appName,
