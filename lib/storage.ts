@@ -1,5 +1,6 @@
 import { get, list, put } from "@vercel/blob";
 import { promises as fs } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { Guide } from "./schema";
 
@@ -30,10 +31,31 @@ export async function saveGuide(g: Guide, opts: { target?: "auto" | "fs" } = {})
     });
     return r.url;
   }
-  await fs.mkdir(DIR, { recursive: true });
-  const file = path.join(DIR, `${g.app.slug}.json`);
-  await fs.writeFile(file, body, "utf8");
-  return file;
+  try {
+    await fs.mkdir(DIR, { recursive: true });
+    const file = path.join(DIR, `${g.app.slug}.json`);
+    await fs.writeFile(file, body, "utf8");
+    return file;
+  } catch (e) {
+    // Read-only deployment without Blob configured: keep the guide in this instance's /tmp so the
+    // permalink works while the instance lives, and say clearly what is missing.
+    if (opts.target === "fs") throw e;
+    console.warn(`[storage] ${String(e)}; BLOB_READ_WRITE_TOKEN is not set, saving to ${TMP_DIR} (not durable)`);
+    await fs.mkdir(TMP_DIR, { recursive: true });
+    const file = path.join(TMP_DIR, `${g.app.slug}.json`);
+    await fs.writeFile(file, body, "utf8");
+    return file;
+  }
+}
+
+const TMP_DIR = path.join(os.tmpdir(), "oauth-guides");
+
+async function readTmp(slug: string): Promise<Guide | null> {
+  try {
+    return Guide.parse(JSON.parse(await fs.readFile(path.join(TMP_DIR, `${slug}.json`), "utf8")));
+  } catch {
+    return null;
+  }
 }
 
 async function readLibrary(slug: string): Promise<Guide | null> {
@@ -60,7 +82,8 @@ async function readBlob(slug: string): Promise<Guide | null> {
 export async function getGuide(slug: string): Promise<StoredGuide | null> {
   if (!validSlug(slug)) return null;
   // Live guides can be regenerated over a library entry; prefer the newer one.
-  const [lib, live] = await Promise.all([readLibrary(slug), readBlob(slug)]);
+  const [lib, blob, tmp] = await Promise.all([readLibrary(slug), readBlob(slug), readTmp(slug)]);
+  const live = blob ?? tmp;
   if (lib && live) return live.generated_at > lib.generated_at ? { guide: live, origin: "live" } : { guide: lib, origin: "library" };
   if (lib) return { guide: lib, origin: "library" };
   if (live) return { guide: live, origin: "live" };
@@ -88,6 +111,14 @@ export async function listGuides(): Promise<StoredGuide[]> {
       );
     } catch {}
   }
+  try {
+    for (const f of (await fs.readdir(TMP_DIR)).filter((f) => f.endsWith(".json"))) {
+      const slug = f.replace(/\.json$/, "");
+      if (out.has(slug)) continue;
+      const g = await readTmp(slug);
+      if (g) out.set(slug, { guide: g, origin: "live" });
+    }
+  } catch {}
   return [...out.values()].sort((a, b) => a.guide.app.name.localeCompare(b.guide.app.name));
 }
 
